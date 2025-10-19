@@ -6,7 +6,20 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  getRoot() {
+    return {
+      message: 'Metronome API - NestJS',
+      version: '1.0.0',
+      endpoints: {
+        health: '/health',
+        presets: '/api/presets',
+        sessions: '/api/sessions',
+      },
+    };
+  }
+
+  @Get('health')
+  getHealth() {
+    return this.appService.getHealth();
   }
 }
