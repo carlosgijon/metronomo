@@ -1,0 +1,43 @@
+# Este .gitignore cubre TODAS las subcarpetas del proyecto
+
+# Node modules (ignora en frontend/ y backend/)
+**/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json  # opcional, según tu preferencia
+
+# Environment variables
+**/.env
+**/.env.local
+**/.env.*.local
+
+# Logs
+**/logs/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE
+.vscode/
+.idea/
+*.sublime-*
+
+# Build outputs (frontend y backend)
+**/dist/
+**/build/
+**/.next/
+**/out/
+
+# Temporary files
+tmp/
+temp/
+
+# Testing
+**/coverage/
+**/.nyc_output/
