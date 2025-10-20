@@ -1,0 +1,92 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: metronome-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: metronome
+      POSTGRES_USER: metronome_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ../database/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U metronome_user -d metronome"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - metronome-network
+
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: metronome-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: 3000
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: metronome
+      DB_USER: metronome_user
+      DB_PASSWORD: ${DB_PASSWORD}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:4200}
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - metronome-network
+    volumes:
+      - backend_node_modules:/app/node_modules
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: metronome-frontend
+    restart: unless-stopped
+    ports:
+      - "0.0.0.0:${FRONTEND_PORT:-80}:80"
+    depends_on:
+      - backend
+    networks:
+      - metronome-network
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: metronome-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@metronome.local
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    networks:
+      - metronome-network
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    profiles:
+      - dev
+
+networks:
+  metronome-network:
+    driver: bridge
+    name: metronome-net
+
+volumes:
+  postgres_data:
+    name: metronome-postgres-data
+  pgadmin_data:
+    name: metronome-pgadmin-data
+  backend_node_modules:
+    name: metronome-backend-modules
