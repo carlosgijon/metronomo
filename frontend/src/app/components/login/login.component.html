@@ -1,0 +1,109 @@
+<div class="min-h-screen bg-base-200 flex items-center justify-center p-4">
+  <div class="card w-full max-w-lg bg-base-100 shadow-xl">
+    <div class="card-body">
+      <h2 class="card-title text-3xl font-bold text-center justify-center mb-6">
+        Metrónomo Sincronizado
+      </h2>
+
+      <form (ngSubmit)="onLogin()" class="space-y-6">
+        <!-- Input de nombre -->
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text font-semibold">Tu nombre</span>
+          </label>
+          <input
+            type="text"
+            placeholder="Ingresa tu nombre"
+            class="input input-bordered w-full"
+            [(ngModel)]="name"
+            name="name"
+            [disabled]="isLoading()"
+            required
+          />
+        </div>
+
+        <!-- Selección de rol -->
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text font-semibold">Selecciona tu rol</span>
+          </label>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <!-- Maestro -->
+            <div
+              class="card bg-base-200 cursor-pointer transition-all hover:shadow-lg"
+              [class.ring-2]="selectedRole() === UserRole.MASTER"
+              [class.ring-primary]="selectedRole() === UserRole.MASTER"
+              (click)="selectRole(UserRole.MASTER)"
+            >
+              <div class="card-body p-4 text-center">
+                <div class="text-4xl mb-2">🎵</div>
+                <h3 class="font-bold">Maestro</h3>
+                <p class="text-xs opacity-70">Controla el metrónomo</p>
+              </div>
+            </div>
+
+            <!-- Seguidor -->
+            <div
+              class="card bg-base-200 cursor-pointer transition-all hover:shadow-lg"
+              [class.ring-2]="selectedRole() === UserRole.FOLLOWER"
+              [class.ring-primary]="selectedRole() === UserRole.FOLLOWER"
+              (click)="selectRole(UserRole.FOLLOWER)"
+            >
+              <div class="card-body p-4 text-center">
+                <div class="text-4xl mb-2">👥</div>
+                <h3 class="font-bold">Seguidor</h3>
+                <p class="text-xs opacity-70">Sigue el metrónomo</p>
+              </div>
+            </div>
+
+            <!-- Admin -->
+            <div
+              class="card bg-base-200 cursor-pointer transition-all hover:shadow-lg"
+              [class.ring-2]="selectedRole() === UserRole.ADMIN"
+              [class.ring-primary]="selectedRole() === UserRole.ADMIN"
+              (click)="selectRole(UserRole.ADMIN)"
+            >
+              <div class="card-body p-4 text-center">
+                <div class="text-4xl mb-2">⚙️</div>
+                <h3 class="font-bold">Admin</h3>
+                <p class="text-xs opacity-70">Gestiona presets</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mensaje de error -->
+        @if (errorMessage()) {
+          <div class="alert alert-error">
+            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>{{ errorMessage() }}</span>
+          </div>
+        }
+
+        <!-- Botón de login -->
+        <div class="form-control mt-6">
+          <button
+            type="submit"
+            class="btn btn-primary w-full"
+            [disabled]="isLoading()"
+          >
+            @if (isLoading()) {
+              <span class="loading loading-spinner"></span>
+              Conectando...
+            } @else {
+              Conectar
+            }
+          </button>
+        </div>
+      </form>
+
+      <div class="divider">Info</div>
+      <div class="text-sm opacity-70 text-center">
+        Al conectar, se medirá la latencia de tu conexión para sincronizar el metrónomo
+      </div>
+    </div>
+  </div>
+</div>

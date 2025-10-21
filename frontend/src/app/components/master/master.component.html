@@ -1,0 +1,165 @@
+<div class="min-h-screen bg-base-200 p-4">
+  <!-- Header -->
+  <div class="navbar bg-base-100 rounded-box shadow-lg mb-4">
+    <div class="flex-1">
+      <h1 class="text-xl font-bold ml-4">Panel Maestro</h1>
+    </div>
+    <div class="flex-none gap-2">
+      <div class="badge badge-primary">{{ user()?.name }}</div>
+      <div class="badge badge-ghost">Latencia: {{ user()?.latency?.toFixed(0) }}ms</div>
+      <button class="btn btn-ghost btn-sm" (click)="logout()">Salir</button>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <!-- Visualización del Metrónomo -->
+    <div class="lg:col-span-2">
+      <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+          <h2 class="card-title">Metrónomo</h2>
+
+          <!-- Visualización de beats -->
+          <div class="flex justify-center gap-3 my-8">
+            @for (beat of beats(); track beat) {
+              <div
+                class="w-16 h-16 rounded-full flex items-center justify-center font-bold text-lg transition-all"
+                [class.bg-primary]="isBeatActive(beat)"
+                [class.text-primary-content]="isBeatActive(beat)"
+                [class.bg-base-300]="!isBeatActive(beat)"
+                [class.scale-125]="isBeatActive(beat)"
+              >
+                {{ beat }}
+              </div>
+            }
+          </div>
+
+          <!-- BPM Display -->
+          <div class="text-center mb-6">
+            <div class="text-6xl font-bold text-primary">{{ bpmInput() }}</div>
+            <div class="text-sm opacity-70">BPM</div>
+          </div>
+
+          <!-- Control de BPM -->
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text">Tempo</span>
+            </label>
+            <input
+              type="range"
+              min="40"
+              max="240"
+              [value]="bpmInput()"
+              (input)="onBpmChange(+$any($event.target).value)"
+              class="range range-primary"
+              step="1"
+            />
+            <div class="w-full flex justify-between text-xs px-2 mt-1">
+              <span>40</span>
+              <span>140</span>
+              <span>240</span>
+            </div>
+          </div>
+
+          <!-- Botón Play/Stop -->
+          <div class="card-actions justify-center mt-6">
+            <button
+              class="btn btn-lg"
+              [class.btn-error]="metronomeState().isPlaying"
+              [class.btn-success]="!metronomeState().isPlaying"
+              (click)="toggleMetronome()"
+            >
+              @if (metronomeState().isPlaying) {
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
+                </svg>
+                Detener
+              } @else {
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Iniciar
+              }
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controles -->
+    <div class="space-y-4">
+      <!-- Presets -->
+      <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+          <h2 class="card-title text-lg">Presets</h2>
+          <div class="form-control">
+            <select
+              class="select select-bordered w-full"
+              [value]="selectedPreset() || ''"
+              (change)="loadPreset($any($event.target).value)"
+            >
+              <option value="">Seleccionar preset...</option>
+              @for (preset of presets(); track preset.id) {
+                <option [value]="preset.id!">{{ preset.name }}</option>
+              }
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Compás -->
+      <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+          <h2 class="card-title text-lg">Compás</h2>
+          <div class="form-control">
+            <select
+              class="select select-bordered w-full"
+              [value]="metronomeState().timeSignature"
+              (change)="onTimeSignatureChange($any($event.target).value)"
+            >
+              @for (ts of timeSignatures; track ts) {
+                <option [value]="ts">{{ ts }}</option>
+              }
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tipo de sonido -->
+      <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+          <h2 class="card-title text-lg">Sonido</h2>
+          <div class="form-control">
+            <select
+              class="select select-bordered w-full"
+              [value]="metronomeState().soundType"
+              (change)="onSoundTypeChange($any($event.target).value)"
+            >
+              <option value="click">Click</option>
+              <option value="beep">Beep</option>
+              <option value="wood">Madera</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Acentuar primer tiempo -->
+      <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+          <div class="form-control">
+            <label class="label cursor-pointer">
+              <span class="label-text">Acentuar primer tiempo</span>
+              <input
+                type="checkbox"
+                class="toggle toggle-primary"
+                [checked]="metronomeState().accentFirst"
+                (change)="onAccentFirstChange($any($event.target).checked)"
+              />
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

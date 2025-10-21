@@ -1,0 +1,52 @@
+import { Component, signal, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { AuthService } from '../../services/auth.service';
+import { UserRole } from '../../models/user.model';
+
+@Component({
+  selector: 'app-login',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './login.component.html',
+  styleUrl: './login.component.css'
+})
+export class LoginComponent {
+  private authService = inject(AuthService);
+
+  name = signal('');
+  selectedRole = signal<UserRole>(UserRole.FOLLOWER);
+  isLoading = signal(false);
+  errorMessage = signal('');
+
+  readonly UserRole = UserRole;
+
+  async onLogin(): Promise<void> {
+    const nameValue = this.name();
+    const roleValue = this.selectedRole();
+
+    if (!nameValue.trim()) {
+      this.errorMessage.set('Por favor, ingresa tu nombre');
+      return;
+    }
+
+    this.isLoading.set(true);
+    this.errorMessage.set('');
+
+    try {
+      await this.authService.login({
+        name: nameValue,
+        role: roleValue
+      });
+    } catch (error) {
+      this.errorMessage.set('Error al conectar. Por favor, intenta de nuevo.');
+      console.error('Error en login:', error);
+    } finally {
+      this.isLoading.set(false);
+    }
+  }
+
+  selectRole(role: UserRole): void {
+    this.selectedRole.set(role);
+  }
+}
