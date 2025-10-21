@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PresetsModule } from './presets/presets.module';
+import { MetronomeModule } from './metronome/metronome.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { PresetsModule } from './presets/presets.module';
 
     // Módulos de la aplicación
     PresetsModule,
+    MetronomeModule,
   ],
   controllers: [AppController],
   providers: [AppService],

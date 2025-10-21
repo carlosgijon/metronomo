@@ -11,30 +11,24 @@ export class Preset {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'uuid', nullable: true })
-  user_id: string;
-
   @Column({ type: 'varchar', length: 100 })
   name: string;
 
   @Column({ type: 'int' })
   bpm: number;
 
-  @Column({ type: 'int' })
-  beats_per_measure: number;
+  @Column({ type: 'varchar', length: 10 })
+  timeSignature: string; // ej: "4/4", "3/4", "6/8"
 
-  @Column({ type: 'int', default: 4 })
-  note_value: number;
+  @Column({ type: 'boolean', default: true })
+  accentFirst: boolean;
 
-  @Column({ type: 'varchar', length: 20, default: 'classic' })
-  sound_type: string;
-
-  @Column({ type: 'boolean', default: false })
-  is_favorite: boolean;
+  @Column({ type: 'varchar', length: 20, default: 'click' })
+  soundType: string; // 'click' | 'beep' | 'wood'
 
   @CreateDateColumn()
-  created_at: Date;
+  createdAt: Date;
 
   @UpdateDateColumn()
-  updated_at: Date;
+  updatedAt: Date;
 }

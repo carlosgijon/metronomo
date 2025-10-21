@@ -6,6 +6,7 @@ import {
   IsString,
   Max,
   Min,
+  Matches,
 } from 'class-validator';
 
 export class CreatePresetDto {
@@ -13,31 +14,22 @@ export class CreatePresetDto {
   name: string;
 
   @IsInt()
-  @Min(30)
-  @Max(300)
+  @Min(40)
+  @Max(240)
   bpm: number;
 
-  @IsInt()
-  @Min(1)
-  @Max(16)
-  beats_per_measure: number;
-
-  @IsOptional()
-  @IsInt()
-  @IsIn([1, 2, 4, 8, 16])
-  note_value?: number;
-
-  @IsOptional()
   @IsString()
-  sound_type?: string;
+  @Matches(/^\d+\/\d+$/, { message: 'timeSignature debe tener el formato "4/4"' })
+  timeSignature: string;
 
   @IsOptional()
   @IsBoolean()
-  is_favorite?: boolean;
+  accentFirst?: boolean;
 
   @IsOptional()
   @IsString()
-  user_id?: string;
+  @IsIn(['click', 'beep', 'wood'])
+  soundType?: string;
 }
 
 export class UpdatePresetDto {
@@ -47,26 +39,21 @@ export class UpdatePresetDto {
 
   @IsOptional()
   @IsInt()
-  @Min(30)
-  @Max(300)
+  @Min(40)
+  @Max(240)
   bpm?: number;
 
   @IsOptional()
-  @IsInt()
-  @Min(1)
-  @Max(16)
-  beats_per_measure?: number;
-
-  @IsOptional()
-  @IsInt()
-  @IsIn([1, 2, 4, 8, 16])
-  note_value?: number;
-
-  @IsOptional()
   @IsString()
-  sound_type?: string;
+  @Matches(/^\d+\/\d+$/, { message: 'timeSignature debe tener el formato "4/4"' })
+  timeSignature?: string;
 
   @IsOptional()
   @IsBoolean()
-  is_favorite?: boolean;
+  accentFirst?: boolean;
+
+  @IsOptional()
+  @IsString()
+  @IsIn(['click', 'beep', 'wood'])
+  soundType?: string;
 }

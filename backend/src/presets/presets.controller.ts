@@ -11,19 +11,18 @@ import {
 } from '@nestjs/common';
 import { CreatePresetDto, UpdatePresetDto } from './dto/create-preset.dto';
 import { PresetsService } from './presets.service';
+import { MetronomeGateway } from '../metronome/metronome.gateway';
 
 @Controller('presets')
 export class PresetsController {
-  constructor(private readonly presetsService: PresetsService) {}
+  constructor(
+    private readonly presetsService: PresetsService,
+    private readonly metronomeGateway: MetronomeGateway,
+  ) {}
 
   @Get()
   findAll() {
     return this.presetsService.findAll();
-  }
-
-  @Get('favorites')
-  findFavorites() {
-    return this.presetsService.findFavorites();
   }
 
   @Get(':id')
@@ -33,18 +32,26 @@ export class PresetsController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  create(@Body() createPresetDto: CreatePresetDto) {
-    return this.presetsService.create(createPresetDto);
+  async create(@Body() createPresetDto: CreatePresetDto) {
+    const preset = await this.presetsService.create(createPresetDto);
+    this.metronomeGateway.notifyPresetCreated(preset);
+    return preset;
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() updatePresetDto: UpdatePresetDto) {
-    return this.presetsService.update(id, updatePresetDto);
+  async update(
+    @Param('id') id: string,
+    @Body() updatePresetDto: UpdatePresetDto,
+  ) {
+    const preset = await this.presetsService.update(id, updatePresetDto);
+    this.metronomeGateway.notifyPresetUpdated(preset);
+    return preset;
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@Param('id') id: string) {
     await this.presetsService.remove(id);
+    this.metronomeGateway.notifyPresetDeleted(id);
   }
 }

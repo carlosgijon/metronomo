@@ -13,7 +13,7 @@ export class PresetsService {
 
   async findAll(): Promise<Preset[]> {
     return this.presetsRepository.find({
-      order: { created_at: 'DESC' },
+      order: { createdAt: 'DESC' },
     });
   }
 
@@ -39,12 +39,5 @@ export class PresetsService {
   async remove(id: string): Promise<void> {
     const preset = await this.findOne(id);
     await this.presetsRepository.remove(preset);
-  }
-
-  async findFavorites(): Promise<Preset[]> {
-    return this.presetsRepository.find({
-      where: { is_favorite: true },
-      order: { created_at: 'DESC' },
-    });
   }
 }
