@@ -1,78 +1,65 @@
 import { Injectable } from '@angular/core';
 import { Observable, Subject, filter, map } from 'rxjs';
+import { io, Socket } from 'socket.io-client';
 import { WSMessage, WSMessageType } from '../models/websocket.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class WebSocketService {
-  private socket: WebSocket | null = null;
+  private socket: Socket | null = null;
   private messageSubject = new Subject<WSMessage>();
-  private reconnectAttempts = 0;
-  private maxReconnectAttempts = 5;
-  private reconnectDelay = 3000;
 
   constructor() {}
 
   connect(url: string): Observable<boolean> {
     return new Observable(observer => {
       try {
-        this.socket = new WebSocket(url);
+        this.socket = io(url, {
+          transports: ['websocket', 'polling'],
+          reconnection: true,
+          reconnectionAttempts: 5,
+          reconnectionDelay: 3000,
+        });
 
-        this.socket.onopen = () => {
-          console.log('WebSocket conectado');
-          this.reconnectAttempts = 0;
+        this.socket.on('connect', () => {
+          console.log('Socket.IO conectado');
           observer.next(true);
           observer.complete();
-        };
 
-        this.socket.onmessage = (event) => {
-          try {
-            const message: WSMessage = JSON.parse(event.data);
-            this.messageSubject.next(message);
-          } catch (error) {
-            console.error('Error parseando mensaje WebSocket:', error);
-          }
-        };
+          // Escuchar todos los tipos de mensajes
+          Object.values(WSMessageType).forEach(type => {
+            this.socket?.on(type, (message: WSMessage) => {
+              this.messageSubject.next(message);
+            });
+          });
+        });
 
-        this.socket.onerror = (error) => {
-          console.error('WebSocket error:', error);
+        this.socket.on('connect_error', (error) => {
+          console.error('Socket.IO error de conexión:', error);
           observer.error(error);
-        };
+        });
 
-        this.socket.onclose = () => {
-          console.log('WebSocket cerrado');
-          this.attemptReconnect(url);
-        };
+        this.socket.on('disconnect', (reason) => {
+          console.log('Socket.IO desconectado:', reason);
+        });
+
       } catch (error) {
         observer.error(error);
       }
     });
   }
 
-  private attemptReconnect(url: string): void {
-    if (this.reconnectAttempts < this.maxReconnectAttempts) {
-      this.reconnectAttempts++;
-      console.log(`Intentando reconectar... (${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
-
-      setTimeout(() => {
-        this.connect(url).subscribe({
-          error: (err) => console.error('Error en reconexión:', err)
-        });
-      }, this.reconnectDelay);
-    }
-  }
-
   send<T>(type: WSMessageType, payload: T): void {
-    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+    if (this.socket && this.socket.connected) {
       const message: WSMessage<T> = {
         type,
         payload,
         timestamp: Date.now()
       };
-      this.socket.send(JSON.stringify(message));
+      this.socket.emit(type, message.payload);
     } else {
-      console.error('WebSocket no está conectado');
+      console.error('Socket.IO no está conectado');
     }
   }
 
@@ -89,12 +76,12 @@ export class WebSocketService {
 
   disconnect(): void {
     if (this.socket) {
-      this.socket.close();
+      this.socket.disconnect();
       this.socket = null;
     }
   }
 
   isConnected(): boolean {
-    return this.socket !== null && this.socket.readyState === WebSocket.OPEN;
+    return this.socket !== null && this.socket.connected;
   }
 }

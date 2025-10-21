@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { User, UserRole, LoginRequest } from '../models/user.model';
 import { WebSocketService } from './websocket.service';
 import { LatencyService } from './latency.service';
+import { WSMessageType } from '../models/websocket.model';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -42,6 +43,13 @@ export class AuthService {
 
       this.currentUserSignal.set(user);
       localStorage.setItem('currentUser', JSON.stringify(user));
+
+      // Enviar mensaje de conexión al servidor
+      this.wsService.send(WSMessageType.USER_CONNECTED, {
+        name: user.name,
+        role: user.role,
+        latency: user.latency
+      });
 
       // Navegar según el rol
       this.navigateByRole(user.role);
