@@ -6,6 +6,7 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
   ConnectedSocket,
+  OnGatewayInit,
 } from '@nestjs/websockets';
 import { Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
@@ -15,12 +16,14 @@ import { ConnectedClient } from './interfaces/metronome.interface';
 
 @WebSocketGateway({
   cors: {
-    origin: process.env.CORS_ORIGIN || 'http://localhost:4200',
+    origin: '*', // Permitir todos los orígenes en desarrollo
     credentials: true,
+    methods: ['GET', 'POST'],
   },
+  transports: ['websocket', 'polling'],
 })
 export class MetronomeGateway
-  implements OnGatewayConnection, OnGatewayDisconnect
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
   @WebSocketServer()
   server: Server;
@@ -37,6 +40,10 @@ export class MetronomeGateway
         timestamp: Date.now(),
       });
     });
+  }
+
+  afterInit(server: Server) {
+    this.logger.log('🔌 WebSocket Gateway inicializado');
   }
 
   handleConnection(client: Socket) {
