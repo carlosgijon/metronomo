@@ -46,11 +46,13 @@ export class MasterComponent {
     this.bpmInput.set(this.metronomeState().bpm);
   }
 
-  toggleMetronome(): void {
+  async toggleMetronome(): Promise<void> {
     const state = this.metronomeState();
     if (state.isPlaying) {
       this.metronomeService.stopMetronome();
     } else {
+      // Desbloquear audio antes de iniciar
+      await this.metronomeService.unlockAudio();
       this.metronomeService.startMetronome();
     }
   }

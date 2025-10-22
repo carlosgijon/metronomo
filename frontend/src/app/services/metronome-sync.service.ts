@@ -39,7 +39,15 @@ export class MetronomeSyncService {
   private initAudioContext(): void {
     if (typeof window !== 'undefined') {
       this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      console.log('🎵 AudioContext creado, estado:', this.audioContext.state);
       this.createSounds();
+    }
+  }
+
+  async unlockAudio(): Promise<void> {
+    if (this.audioContext && this.audioContext.state === 'suspended') {
+      await this.audioContext.resume();
+      console.log('🔓 AudioContext desbloqueado, estado:', this.audioContext.state);
     }
   }
 
@@ -110,6 +118,13 @@ export class MetronomeSyncService {
     const user = this.authService.currentUser();
     if (!user) return;
 
+    console.log('🥁 Beat recibido:', beatEvent.beatNumber, 'Acento:', beatEvent.isAccent);
+
+    // Desbloquear audio si está suspendido
+    if (this.audioContext?.state === 'suspended') {
+      this.unlockAudio();
+    }
+
     // Ajustar el tiempo del beat según la latencia del usuario
     const adjustedTime = beatEvent.scheduledTime + (user.latency / 1000);
 
@@ -124,7 +139,15 @@ export class MetronomeSyncService {
   }
 
   private scheduleSound(time: number, isAccent: boolean): void {
-    if (!this.audioContext) return;
+    if (!this.audioContext) {
+      console.warn('⚠️ AudioContext no disponible');
+      return;
+    }
+
+    if (this.audioContext.state !== 'running') {
+      console.warn('⚠️ AudioContext no está corriendo, estado:', this.audioContext.state);
+      return;
+    }
 
     const currentState = this.stateSignal();
     let buffer: AudioBuffer | null = null;
@@ -141,18 +164,26 @@ export class MetronomeSyncService {
         break;
     }
 
-    if (!buffer) return;
+    if (!buffer) {
+      console.warn('⚠️ Buffer de sonido no disponible');
+      return;
+    }
 
-    const source = this.audioContext.createBufferSource();
-    source.buffer = buffer;
+    try {
+      const source = this.audioContext.createBufferSource();
+      source.buffer = buffer;
 
-    const gainNode = this.audioContext.createGain();
-    gainNode.gain.value = isAccent ? 1.0 : 0.6;
+      const gainNode = this.audioContext.createGain();
+      gainNode.gain.value = isAccent ? 1.0 : 0.6;
 
-    source.connect(gainNode);
-    gainNode.connect(this.audioContext.destination);
+      source.connect(gainNode);
+      gainNode.connect(this.audioContext.destination);
 
-    source.start(time);
+      source.start(time);
+      console.log('🔊 Sonido programado para:', time, 'Acento:', isAccent);
+    } catch (error) {
+      console.error('❌ Error reproduciendo sonido:', error);
+    }
   }
 
   // Métodos para el maestro
