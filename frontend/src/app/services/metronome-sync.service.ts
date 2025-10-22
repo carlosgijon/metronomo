@@ -1,7 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { WebSocketService } from './websocket.service';
 import { AuthService } from './auth.service';
-import { MetronomeState, BeatEvent } from '../models/metronome.model';
+import { MetronomeState } from '../models/metronome.model';
 import { WSMessageType } from '../models/websocket.model';
 
 @Injectable({
@@ -24,9 +24,13 @@ export class MetronomeSyncService {
   private clickBuffer: AudioBuffer | null = null;
   private beepBuffer: AudioBuffer | null = null;
   private woodBuffer: AudioBuffer | null = null;
-  private scheduledBeats: number[] = [];
-  private scheduleAheadTime = 0.1; // Programar con 100ms de anticipación
-  private timerID: any = null;
+
+  // Sistema de scheduling local para metrónomo preciso
+  private schedulerInterval: any = null;
+  private nextBeatTime: number = 0;
+  private currentLocalBeat: number = 1;
+  private scheduleAheadTime: number = 0.1; // Programar 100ms adelante
+  private lookAhead: number = 25; // Chequear cada 25ms
 
   constructor(
     private wsService: WebSocketService,
@@ -62,13 +66,6 @@ export class MetronomeSyncService {
     } else {
       console.log('ℹ️ AudioContext ya está en estado:', this.audioContext.state);
     }
-
-    // Verificar buffers
-    console.log('🎵 Buffers disponibles:', {
-      click: !!this.clickBuffer,
-      beep: !!this.beepBuffer,
-      wood: !!this.woodBuffer
-    });
   }
 
   private createSounds(): void {
@@ -78,17 +75,10 @@ export class MetronomeSyncService {
     }
 
     try {
-      // Sonido de click (frecuencias altas)
       this.clickBuffer = this.createClickSound();
-      console.log('✅ Click buffer creado');
-
-      // Sonido de beep (tono puro)
       this.beepBuffer = this.createBeepSound();
-      console.log('✅ Beep buffer creado');
-
-      // Sonido de madera (más grave)
       this.woodBuffer = this.createWoodSound();
-      console.log('✅ Wood buffer creado');
+      console.log('✅ Buffers de audio creados');
     } catch (error) {
       console.error('❌ Error creando buffers de sonido:', error);
     }
@@ -133,55 +123,92 @@ export class MetronomeSyncService {
   private subscribeToMetronomeEvents(): void {
     console.log('📡 Suscribiéndose a eventos de metrónomo...');
 
-    // Escuchar cambios de estado del metrónomo
+    // Solo escuchar cambios de estado (START/STOP/UPDATE)
     this.wsService.onMessage<MetronomeState>(WSMessageType.METRONOME_STATE)
       .subscribe(state => {
         console.log('📊 Estado del metrónomo actualizado:', state);
+        const wasPlaying = this.stateSignal().isPlaying;
         this.stateSignal.set(state);
+
+        // Si cambió el estado de reproducción, iniciar/detener scheduler local
+        if (state.isPlaying && !wasPlaying) {
+          this.startLocalMetronome();
+        } else if (!state.isPlaying && wasPlaying) {
+          this.stopLocalMetronome();
+        }
       });
 
-    // Escuchar eventos de beat
-    this.wsService.onMessage<BeatEvent>(WSMessageType.BEAT_EVENT)
-      .subscribe(beatEvent => {
-        console.log('🥁 Evento de beat recibido:', beatEvent);
-        this.handleBeatEvent(beatEvent);
-      });
-
-    console.log('✅ Suscripciones a eventos completadas');
+    console.log('✅ Suscripciones a eventos completadas (modo local)');
   }
 
-  private handleBeatEvent(beatEvent: BeatEvent): void {
-    const user = this.authService.currentUser();
-    if (!user) return;
+  private startLocalMetronome(): void {
+    if (!this.audioContext) {
+      console.error('❌ No se puede iniciar metrónomo: AudioContext no disponible');
+      return;
+    }
 
-    console.log('🥁 Beat recibido:', beatEvent.beatNumber, 'Acento:', beatEvent.isAccent);
+    console.log('▶️ Iniciando metrónomo local');
 
     // Desbloquear audio si está suspendido
-    if (this.audioContext?.state === 'suspended') {
+    if (this.audioContext.state === 'suspended') {
       this.unlockAudio();
     }
 
-    // Programar el sonido inmediatamente con un pequeño delay
-    // (no usamos scheduledTime del servidor porque es un timestamp absoluto)
-    this.scheduleSound(beatEvent.isAccent);
+    // Inicializar tiempo del primer beat
+    this.nextBeatTime = this.audioContext.currentTime;
+    this.currentLocalBeat = 1;
 
-    // Actualizar el beat actual
-    this.stateSignal.update(state => ({
-      ...state,
-      currentBeat: beatEvent.beatNumber
-    }));
+    // Iniciar scheduler
+    this.schedulerInterval = setInterval(() => {
+      this.scheduler();
+    }, this.lookAhead);
   }
 
-  private scheduleSound(isAccent: boolean): void {
-    if (!this.audioContext) {
-      console.warn('⚠️ AudioContext no disponible');
-      return;
+  private stopLocalMetronome(): void {
+    console.log('⏸️ Deteniendo metrónomo local');
+
+    if (this.schedulerInterval) {
+      clearInterval(this.schedulerInterval);
+      this.schedulerInterval = null;
     }
 
-    if (this.audioContext.state !== 'running') {
-      console.warn('⚠️ AudioContext no está corriendo, estado:', this.audioContext.state);
-      return;
+    this.currentLocalBeat = 1;
+  }
+
+  private scheduler(): void {
+    if (!this.audioContext) return;
+
+    const currentState = this.stateSignal();
+    if (!currentState.isPlaying) return;
+
+    // Programar todos los beats que caen dentro de la ventana de look-ahead
+    while (this.nextBeatTime < this.audioContext.currentTime + this.scheduleAheadTime) {
+      const beatsPerMeasure = this.getBeatsPerMeasure(currentState.timeSignature);
+      const isAccent = this.currentLocalBeat === 1 && currentState.accentFirst;
+
+      // Programar el sonido
+      this.scheduleNote(this.nextBeatTime, isAccent);
+
+      // Actualizar UI con el beat actual
+      this.stateSignal.update(state => ({
+        ...state,
+        currentBeat: this.currentLocalBeat
+      }));
+
+      // Calcular siguiente beat
+      const secondsPerBeat = 60.0 / currentState.bpm;
+      this.nextBeatTime += secondsPerBeat;
+
+      // Avanzar al siguiente beat en el compás
+      this.currentLocalBeat++;
+      if (this.currentLocalBeat > beatsPerMeasure) {
+        this.currentLocalBeat = 1;
+      }
     }
+  }
+
+  private scheduleNote(time: number, isAccent: boolean): void {
+    if (!this.audioContext) return;
 
     const currentState = this.stateSignal();
     let buffer: AudioBuffer | null = null;
@@ -198,10 +225,7 @@ export class MetronomeSyncService {
         break;
     }
 
-    if (!buffer) {
-      console.warn('⚠️ Buffer de sonido no disponible');
-      return;
-    }
+    if (!buffer) return;
 
     try {
       const source = this.audioContext.createBufferSource();
@@ -213,13 +237,15 @@ export class MetronomeSyncService {
       source.connect(gainNode);
       gainNode.connect(this.audioContext.destination);
 
-      // Programar para reproducir inmediatamente
-      const playTime = this.audioContext.currentTime + 0.01;
-      source.start(playTime);
-      console.log('🔊 Sonido programado para:', playTime, 'currentTime:', this.audioContext.currentTime, 'Acento:', isAccent);
+      source.start(time);
     } catch (error) {
       console.error('❌ Error reproduciendo sonido:', error);
     }
+  }
+
+  private getBeatsPerMeasure(timeSignature: string): number {
+    const [numerator] = timeSignature.split('/');
+    return parseInt(numerator, 10);
   }
 
   // Métodos para el maestro
