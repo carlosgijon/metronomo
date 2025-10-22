@@ -23,16 +23,19 @@ export class WebSocketService {
         });
 
         this.socket.on('connect', () => {
-          console.log('Socket.IO conectado');
+          console.log('✅ Socket.IO conectado, ID:', this.socket?.id);
           observer.next(true);
           observer.complete();
 
           // Escuchar todos los tipos de mensajes
           Object.values(WSMessageType).forEach(type => {
             this.socket?.on(type, (message: WSMessage) => {
+              console.log(`📩 Mensaje recibido [${type}]:`, message);
               this.messageSubject.next(message);
             });
           });
+
+          console.log('✅ Listeners registrados para tipos:', Object.values(WSMessageType));
         });
 
         this.socket.on('connect_error', (error) => {
@@ -57,9 +60,10 @@ export class WebSocketService {
         payload,
         timestamp: Date.now()
       };
+      console.log(`📤 Enviando mensaje [${type}]:`, payload);
       this.socket.emit(type, message.payload);
     } else {
-      console.error('Socket.IO no está conectado');
+      console.error('❌ Socket.IO no está conectado, no se puede enviar:', type);
     }
   }
 

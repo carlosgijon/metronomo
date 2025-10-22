@@ -45,23 +45,53 @@ export class MetronomeSyncService {
   }
 
   async unlockAudio(): Promise<void> {
-    if (this.audioContext && this.audioContext.state === 'suspended') {
-      await this.audioContext.resume();
-      console.log('🔓 AudioContext desbloqueado, estado:', this.audioContext.state);
+    if (!this.audioContext) {
+      console.error('❌ AudioContext no existe');
+      return;
     }
+
+    console.log('🔓 Intentando desbloquear AudioContext, estado actual:', this.audioContext.state);
+
+    if (this.audioContext.state === 'suspended') {
+      try {
+        await this.audioContext.resume();
+        console.log('✅ AudioContext desbloqueado, nuevo estado:', this.audioContext.state);
+      } catch (error) {
+        console.error('❌ Error desbloqueando AudioContext:', error);
+      }
+    } else {
+      console.log('ℹ️ AudioContext ya está en estado:', this.audioContext.state);
+    }
+
+    // Verificar buffers
+    console.log('🎵 Buffers disponibles:', {
+      click: !!this.clickBuffer,
+      beep: !!this.beepBuffer,
+      wood: !!this.woodBuffer
+    });
   }
 
   private createSounds(): void {
-    if (!this.audioContext) return;
+    if (!this.audioContext) {
+      console.error('❌ No se puede crear sonidos: AudioContext no disponible');
+      return;
+    }
 
-    // Sonido de click (frecuencias altas)
-    this.clickBuffer = this.createClickSound();
+    try {
+      // Sonido de click (frecuencias altas)
+      this.clickBuffer = this.createClickSound();
+      console.log('✅ Click buffer creado');
 
-    // Sonido de beep (tono puro)
-    this.beepBuffer = this.createBeepSound();
+      // Sonido de beep (tono puro)
+      this.beepBuffer = this.createBeepSound();
+      console.log('✅ Beep buffer creado');
 
-    // Sonido de madera (más grave)
-    this.woodBuffer = this.createWoodSound();
+      // Sonido de madera (más grave)
+      this.woodBuffer = this.createWoodSound();
+      console.log('✅ Wood buffer creado');
+    } catch (error) {
+      console.error('❌ Error creando buffers de sonido:', error);
+    }
   }
 
   private createClickSound(): AudioBuffer {
@@ -101,17 +131,23 @@ export class MetronomeSyncService {
   }
 
   private subscribeToMetronomeEvents(): void {
+    console.log('📡 Suscribiéndose a eventos de metrónomo...');
+
     // Escuchar cambios de estado del metrónomo
     this.wsService.onMessage<MetronomeState>(WSMessageType.METRONOME_STATE)
       .subscribe(state => {
+        console.log('📊 Estado del metrónomo actualizado:', state);
         this.stateSignal.set(state);
       });
 
     // Escuchar eventos de beat
     this.wsService.onMessage<BeatEvent>(WSMessageType.BEAT_EVENT)
       .subscribe(beatEvent => {
+        console.log('🥁 Evento de beat recibido:', beatEvent);
         this.handleBeatEvent(beatEvent);
       });
+
+    console.log('✅ Suscripciones a eventos completadas');
   }
 
   private handleBeatEvent(beatEvent: BeatEvent): void {
@@ -188,10 +224,12 @@ export class MetronomeSyncService {
 
   // Métodos para el maestro
   startMetronome(): void {
+    console.log('▶️ Enviando comando START al servidor...');
     this.wsService.send(WSMessageType.METRONOME_START, {});
   }
 
   stopMetronome(): void {
+    console.log('⏸️ Enviando comando STOP al servidor...');
     this.wsService.send(WSMessageType.METRONOME_STOP, {});
   }
 
