@@ -23,7 +23,7 @@ import { MetronomeModule } from './metronome/metronome.module';
       password: process.env.DB_PASSWORD || 'changeme123',
       database: process.env.DB_NAME || 'metronome',
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: false, // ¡IMPORTANTE! Usar false en producción
+      synchronize: true, // Habilitado para desarrollo para sincronizar el esquema
       logging: process.env.NODE_ENV === 'development',
     }),
 

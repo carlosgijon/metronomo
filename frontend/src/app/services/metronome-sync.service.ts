@@ -125,11 +125,9 @@ export class MetronomeSyncService {
       this.unlockAudio();
     }
 
-    // Ajustar el tiempo del beat según la latencia del usuario
-    const adjustedTime = beatEvent.scheduledTime + (user.latency / 1000);
-
-    // Programar el sonido
-    this.scheduleSound(adjustedTime, beatEvent.isAccent);
+    // Programar el sonido inmediatamente con un pequeño delay
+    // (no usamos scheduledTime del servidor porque es un timestamp absoluto)
+    this.scheduleSound(beatEvent.isAccent);
 
     // Actualizar el beat actual
     this.stateSignal.update(state => ({
@@ -138,7 +136,7 @@ export class MetronomeSyncService {
     }));
   }
 
-  private scheduleSound(time: number, isAccent: boolean): void {
+  private scheduleSound(isAccent: boolean): void {
     if (!this.audioContext) {
       console.warn('⚠️ AudioContext no disponible');
       return;
@@ -179,8 +177,10 @@ export class MetronomeSyncService {
       source.connect(gainNode);
       gainNode.connect(this.audioContext.destination);
 
-      source.start(time);
-      console.log('🔊 Sonido programado para:', time, 'Acento:', isAccent);
+      // Programar para reproducir inmediatamente
+      const playTime = this.audioContext.currentTime + 0.01;
+      source.start(playTime);
+      console.log('🔊 Sonido programado para:', playTime, 'currentTime:', this.audioContext.currentTime, 'Acento:', isAccent);
     } catch (error) {
       console.error('❌ Error reproduciendo sonido:', error);
     }
