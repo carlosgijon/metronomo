@@ -2,7 +2,6 @@ import { Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { User, UserRole, LoginRequest } from '../models/user.model';
 import { WebSocketService } from './websocket.service';
-import { LatencyService } from './latency.service';
 import { WSMessageType } from '../models/websocket.model';
 import { environment } from '../../environments/environment';
 
@@ -15,7 +14,6 @@ export class AuthService {
 
   constructor(
     private wsService: WebSocketService,
-    private latencyService: LatencyService,
     private router: Router
   ) {
     // Cargar usuario desde localStorage si existe
@@ -30,15 +28,11 @@ export class AuthService {
       // Conectar al WebSocket
       await this.wsService.connect(environment.wsUrl).toPromise();
 
-      // Medir latencia
-      const latency = await this.latencyService.measureLatency();
-
-      // Crear usuario
+      // Crear usuario (sin medición de latencia para mejor rendimiento)
       const user: User = {
         id: this.generateUserId(),
         name: loginRequest.name,
-        role: loginRequest.role,
-        latency: latency
+        role: loginRequest.role
       };
 
       this.currentUserSignal.set(user);
@@ -48,7 +42,7 @@ export class AuthService {
       this.wsService.send(WSMessageType.USER_CONNECTED, {
         name: user.name,
         role: user.role,
-        latency: user.latency
+        latency: 0 // Sin compensación de latencia
       });
 
       // Navegar según el rol

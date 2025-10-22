@@ -8,7 +8,7 @@ export interface User {
   id: string;
   name: string;
   role: UserRole;
-  latency: number; // latencia en milisegundos
+  latency?: number; // Opcional - ya no se usa compensación de latencia
 }
 
 export interface LoginRequest {
