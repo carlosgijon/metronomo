@@ -3,11 +3,30 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { UserRole } from '../../models/user.model';
+import { NzCardModule } from 'ng-zorro-antd/card';
+import { NzFormModule } from 'ng-zorro-antd/form';
+import { NzInputModule } from 'ng-zorro-antd/input';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzRadioModule } from 'ng-zorro-antd/radio';
+import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzSpinModule } from 'ng-zorro-antd/spin';
+import { NzAlertModule } from 'ng-zorro-antd/alert';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    NzCardModule,
+    NzFormModule,
+    NzInputModule,
+    NzButtonModule,
+    NzRadioModule,
+    NzIconModule,
+    NzSpinModule,
+    NzAlertModule
+  ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })

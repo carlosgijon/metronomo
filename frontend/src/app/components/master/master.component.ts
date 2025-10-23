@@ -6,11 +6,34 @@ import { MetronomeSyncService } from '../../services/metronome-sync.service';
 import { AuthService } from '../../services/auth.service';
 import { PresetService } from '../../services/preset.service';
 import { Preset } from '../../models/preset.model';
+import { NzCardModule } from 'ng-zorro-antd/card';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzSliderModule } from 'ng-zorro-antd/slider';
+import { NzSelectModule } from 'ng-zorro-antd/select';
+import { NzSwitchModule } from 'ng-zorro-antd/switch';
+import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzBadgeModule } from 'ng-zorro-antd/badge';
+import { NzSpaceModule } from 'ng-zorro-antd/space';
+import { NzDividerModule } from 'ng-zorro-antd/divider';
+import { NzSegmentedModule } from 'ng-zorro-antd/segmented';
 
 @Component({
   selector: 'app-master',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    NzCardModule,
+    NzButtonModule,
+    NzSliderModule,
+    NzSelectModule,
+    NzSwitchModule,
+    NzIconModule,
+    NzBadgeModule,
+    NzSpaceModule,
+    NzDividerModule,
+    NzSegmentedModule
+  ],
   templateUrl: './master.component.html',
   styleUrl: './master.component.css'
 })
@@ -29,6 +52,11 @@ export class MasterComponent {
 
   timeSignatures = ['2/4', '3/4', '4/4', '5/4', '6/8', '7/8', '9/8', '12/8'];
   soundTypes: Array<'click' | 'beep' | 'wood'> = ['click', 'beep', 'wood'];
+  soundTypeOptions = [
+    { label: 'Click', value: 'click' },
+    { label: 'Beep', value: 'beep' },
+    { label: 'Madera', value: 'wood' }
+  ];
 
   // Computed para saber cuántos beats tiene el compás
   beatsPerMeasure = computed(() => {

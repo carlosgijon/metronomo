@@ -3,11 +3,23 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MetronomeSyncService } from '../../services/metronome-sync.service';
 import { AuthService } from '../../services/auth.service';
+import { NzCardModule } from 'ng-zorro-antd/card';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzBadgeModule } from 'ng-zorro-antd/badge';
+import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 
 @Component({
   selector: 'app-follower',
   standalone: true,
-  imports: [CommonModule],
+  imports: [
+    CommonModule,
+    NzCardModule,
+    NzButtonModule,
+    NzIconModule,
+    NzBadgeModule,
+    NzStatisticModule
+  ],
   templateUrl: './follower.component.html',
   styleUrl: './follower.component.css'
 })
