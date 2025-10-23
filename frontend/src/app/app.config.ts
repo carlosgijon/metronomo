@@ -1,6 +1,6 @@
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { provideIonicAngular } from '@ionic/angular/standalone';
 
 import { routes } from './app.routes';
@@ -11,7 +11,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideHttpClient(withInterceptorsFromDi()),
     provideIonicAngular({
-      mode: 'md' // Material Design mode para Android/iOS
+      mode: 'md' // Material Design mode
     }),
-  ],
+  ]
 };

@@ -1,39 +1,33 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
-import { roleGuard } from './guards/role.guard';
-import { UserRole } from './models/user.model';
-import { LoginComponent } from './components/login/login.component';
-import { MasterComponent } from './components/master/master.component';
-import { FollowerComponent } from './components/follower/follower.component';
-import { AdminComponent } from './components/admin/admin.component';
 
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: '/login',
+    redirectTo: 'login',
     pathMatch: 'full'
   },
   {
     path: 'login',
-    component: LoginComponent
+    loadComponent: () => import('./components/login/login.component').then(m => m.LoginComponent)
   },
   {
     path: 'master',
-    component: MasterComponent,
-    canActivate: [authGuard, roleGuard([UserRole.MASTER])]
+    loadComponent: () => import('./components/master/master.component').then(m => m.MasterComponent),
+    canActivate: [authGuard]
   },
   {
     path: 'follower',
-    component: FollowerComponent,
-    canActivate: [authGuard, roleGuard([UserRole.FOLLOWER])]
+    loadComponent: () => import('./components/follower/follower.component').then(m => m.FollowerComponent),
+    canActivate: [authGuard]
   },
   {
     path: 'admin',
-    component: AdminComponent,
-    canActivate: [authGuard, roleGuard([UserRole.ADMIN])]
+    loadComponent: () => import('./components/admin/admin.component').then(m => m.AdminComponent),
+    canActivate: [authGuard]
   },
   {
     path: '**',
-    redirectTo: '/login'
+    redirectTo: 'login'
   }
 ];

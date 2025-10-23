@@ -1,8 +1,6 @@
 {
   "name": "Metrónomo Sincronizado",
-  "integrations": {
-    "capacitor": {}
-  },
+  "integrations": {},
   "type": "angular",
   "id": "metronomo-sync"
 }
