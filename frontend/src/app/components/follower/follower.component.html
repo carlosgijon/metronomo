@@ -1,67 +1,97 @@
-<div class="min-h-screen bg-base-200 p-4">
-  <!-- Header -->
-  <div class="navbar bg-base-100 rounded-box shadow-lg mb-4">
-    <div class="flex-1">
-      <h1 class="text-xl font-bold ml-4">Seguidor</h1>
-    </div>
-    <div class="flex-none gap-2">
-      <div class="badge badge-primary">{{ user()?.name }}</div>
-      <button class="btn btn-ghost btn-sm" (click)="logout()">Salir</button>
-    </div>
-  </div>
+<!-- Fondo con gradiente animado -->
+<div class="min-h-screen gradient-bg relative overflow-hidden">
+  <!-- Círculos decorativos flotantes -->
+  <div class="absolute top-10 right-20 w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+  <div class="absolute bottom-10 left-20 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-1000"></div>
 
-  <!-- Visualización del Metrónomo -->
-  <div class="flex items-center justify-center" style="min-height: calc(100vh - 120px);">
-    <div class="card bg-base-100 shadow-2xl w-full max-w-2xl">
-      <div class="card-body">
+  <!-- Contenido principal -->
+  <div class="relative z-10 p-4 md:p-8">
+    <!-- Header glassmorphism -->
+    <header class="glass-strong rounded-2xl shadow-glass-lg mb-8 p-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center glow-blue">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-2xl font-bold text-glass">Metrónomo Seguidor</h1>
+            <p class="text-sm text-glass-muted">Sincronizado con el maestro</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="glass rounded-xl px-4 py-2">
+            <span class="text-glass-muted text-sm">Seguidor:</span>
+            <span class="text-glass font-semibold ml-2">{{ user()?.name }}</span>
+          </div>
+          <button class="btn-glass rounded-xl px-4 py-2 text-glass font-medium" (click)="logout()">
+            Salir
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Panel principal centrado -->
+    <div class="flex items-center justify-center min-h-[calc(100vh-200px)]">
+      <div class="glass-strong rounded-3xl shadow-glass-lg p-12 max-w-3xl w-full float">
         <!-- Estado -->
-        <div class="text-center mb-6">
+        <div class="text-center mb-8">
           @if (metronomeState().isPlaying) {
-            <div class="badge badge-success gap-2">
-              <span class="loading loading-ring loading-xs"></span>
-              Reproduciendo
+            <div class="inline-flex items-center gap-3 glass-dark rounded-full px-6 py-3 glow-blue">
+              <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+              <span class="text-glass font-medium">Reproduciendo</span>
             </div>
           } @else {
-            <div class="badge badge-ghost">En espera...</div>
+            <div class="inline-flex items-center gap-3 glass-dark rounded-full px-6 py-3">
+              <div class="w-3 h-3 bg-gray-400 rounded-full"></div>
+              <span class="text-glass-muted font-medium">En espera...</span>
+            </div>
           }
         </div>
 
-        <!-- BPM Display -->
-        <div class="text-center mb-8">
-          <div class="text-7xl font-bold text-primary mb-2">{{ metronomeState().bpm }}</div>
-          <div class="text-lg opacity-70">BPM</div>
-          <div class="text-sm opacity-50 mt-2">{{ metronomeState().timeSignature }}</div>
+        <!-- BPM Display con efecto especial -->
+        <div class="text-center mb-12 relative">
+          <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 blur-3xl"></div>
+          <div class="relative">
+            <div class="text-9xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 mb-2">
+              {{ metronomeState().bpm }}
+            </div>
+            <div class="text-lg text-glass-muted font-medium tracking-widest uppercase">Beats por Minuto</div>
+            <div class="text-2xl text-glass font-bold mt-2">{{ metronomeState().timeSignature }}</div>
+          </div>
         </div>
 
         <!-- Visualización de beats -->
-        <div class="flex justify-center gap-4 flex-wrap mb-6">
+        <div class="flex justify-center gap-5 mb-12">
           @for (beat of beats(); track beat) {
             <div
-              class="transition-all duration-100"
-              [class.scale-110]="isBeatActive(beat)"
+              class="w-24 h-24 rounded-full flex items-center justify-center font-bold text-3xl text-glass transition-all duration-300"
+              [class.glass-dark]="!isBeatActive(beat)"
+              [class.bg-gradient-to-br]="isBeatActive(beat)"
+              [class.from-blue-500]="isBeatActive(beat)"
+              [class.to-cyan-500]="isBeatActive(beat)"
+              [class.glow-blue]="isBeatActive(beat)"
+              [class.beat-active]="isBeatActive(beat)"
+              [class.ring-4]="isBeatActive(beat) && beat === 1 && metronomeState().accentFirst"
+              [class.ring-pink-400]="isBeatActive(beat) && beat === 1 && metronomeState().accentFirst"
             >
-              <div
-                class="w-20 h-20 rounded-full flex items-center justify-center font-bold text-2xl transition-all shadow-lg"
-                [class.bg-primary]="isBeatActive(beat)"
-                [class.text-primary-content]="isBeatActive(beat)"
-                [class.bg-base-300]="!isBeatActive(beat)"
-                [class.shadow-2xl]="isBeatActive(beat)"
-                [class.ring-4]="isBeatActive(beat) && beat === 1 && metronomeState().accentFirst"
-                [class.ring-accent]="isBeatActive(beat) && beat === 1 && metronomeState().accentFirst"
-              >
-                {{ beat }}
-              </div>
+              {{ beat }}
             </div>
           }
         </div>
 
-        <!-- Info adicional -->
-        <div class="divider"></div>
-
-        <div class="grid grid-cols-2 gap-4 text-center">
-          <div class="stat place-items-center bg-base-200 rounded-box">
-            <div class="stat-title">Sonido</div>
-            <div class="stat-value text-2xl">
+        <!-- Info adicional en grid -->
+        <div class="grid grid-cols-2 gap-4">
+          <div class="glass-dark rounded-2xl p-6 text-center">
+            <div class="flex items-center justify-center gap-2 mb-2">
+              <svg class="w-5 h-5 text-glass-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
+              </svg>
+              <div class="text-sm text-glass-muted font-medium uppercase tracking-wider">Sonido</div>
+            </div>
+            <div class="text-2xl font-bold text-glass">
               @switch (metronomeState().soundType) {
                 @case ('click') { Click }
                 @case ('beep') { Beep }
@@ -70,24 +100,37 @@
             </div>
           </div>
 
-          <div class="stat place-items-center bg-base-200 rounded-box">
-            <div class="stat-title">Acentuación</div>
-            <div class="stat-value text-2xl">
+          <div class="glass-dark rounded-2xl p-6 text-center">
+            <div class="flex items-center justify-center gap-2 mb-2">
+              <svg class="w-5 h-5 text-glass-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path>
+              </svg>
+              <div class="text-sm text-glass-muted font-medium uppercase tracking-wider">Acento</div>
+            </div>
+            <div class="text-2xl font-bold">
               @if (metronomeState().accentFirst) {
-                <span class="text-success">Sí</span>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-400">Activo</span>
               } @else {
-                <span class="text-ghost">No</span>
+                <span class="text-glass-muted">Inactivo</span>
               }
             </div>
           </div>
         </div>
 
+        <!-- Mensaje de espera -->
         @if (!metronomeState().isPlaying) {
-          <div class="alert alert-info mt-6">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-            <span>Esperando a que el maestro inicie el metrónomo...</span>
+          <div class="mt-8 glass-dark rounded-2xl p-6">
+            <div class="flex items-center gap-4">
+              <div class="flex-shrink-0">
+                <svg class="w-10 h-10 text-blue-400 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+              <div>
+                <div class="text-glass font-medium">Esperando instrucciones</div>
+                <div class="text-glass-muted text-sm">El maestro iniciará el metrónomo en breve...</div>
+              </div>
+            </div>
           </div>
         }
       </div>

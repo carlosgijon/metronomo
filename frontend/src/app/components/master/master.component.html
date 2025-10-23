@@ -1,31 +1,55 @@
-<div class="min-h-screen bg-base-200 p-4">
-  <!-- Header -->
-  <div class="navbar bg-base-100 rounded-box shadow-lg mb-4">
-    <div class="flex-1">
-      <h1 class="text-xl font-bold ml-4">Panel Maestro</h1>
-    </div>
-    <div class="flex-none gap-2">
-      <div class="badge badge-primary">{{ user()?.name }}</div>
-      <button class="btn btn-ghost btn-sm" (click)="logout()">Salir</button>
-    </div>
-  </div>
+<!-- Fondo con gradiente animado -->
+<div class="min-h-screen gradient-bg relative overflow-hidden">
+  <!-- Círculos decorativos flotantes -->
+  <div class="absolute top-20 left-10 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+  <div class="absolute top-40 right-10 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-700"></div>
+  <div class="absolute -bottom-8 left-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-1000"></div>
 
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-    <!-- Visualización del Metrónomo -->
-    <div class="lg:col-span-2">
-      <div class="card bg-base-100 shadow-xl">
-        <div class="card-body">
-          <h2 class="card-title">Metrónomo</h2>
+  <!-- Contenido principal -->
+  <div class="relative z-10 p-4 md:p-8">
+    <!-- Header glassmorphism -->
+    <header class="glass-strong rounded-2xl shadow-glass-lg mb-8 p-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center glow-purple">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path>
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-2xl font-bold text-glass">Metrónomo Maestro</h1>
+            <p class="text-sm text-glass-muted">Controla el tempo de tu banda</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="glass rounded-xl px-4 py-2">
+            <span class="text-glass-muted text-sm">Maestro:</span>
+            <span class="text-glass font-semibold ml-2">{{ user()?.name }}</span>
+          </div>
+          <button class="btn-glass rounded-xl px-4 py-2 text-glass font-medium" (click)="logout()">
+            Salir
+          </button>
+        </div>
+      </div>
+    </header>
 
+    <!-- Grid principal -->
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      <!-- Panel principal del metrónomo -->
+      <div class="xl:col-span-2">
+        <div class="glass-strong rounded-3xl shadow-glass-lg p-8 float">
           <!-- Visualización de beats -->
-          <div class="flex justify-center gap-3 my-8">
+          <div class="flex justify-center gap-4 mb-12">
             @for (beat of beats(); track beat) {
               <div
-                class="w-16 h-16 rounded-full flex items-center justify-center font-bold text-lg transition-all"
-                [class.bg-primary]="isBeatActive(beat)"
-                [class.text-primary-content]="isBeatActive(beat)"
-                [class.bg-base-300]="!isBeatActive(beat)"
-                [class.scale-125]="isBeatActive(beat)"
+                class="w-20 h-20 rounded-full flex items-center justify-center font-bold text-2xl text-glass transition-all duration-300 cursor-pointer"
+                [class.glass-dark]="!isBeatActive(beat)"
+                [class.bg-gradient-to-br]="isBeatActive(beat)"
+                [class.from-purple-500]="isBeatActive(beat)"
+                [class.to-pink-500]="isBeatActive(beat)"
+                [class.glow-purple]="isBeatActive(beat) && beat === 1"
+                [class.glow-blue]="isBeatActive(beat) && beat !== 1"
+                [class.beat-active]="isBeatActive(beat)"
               >
                 {{ beat }}
               </div>
@@ -33,130 +57,162 @@
           </div>
 
           <!-- BPM Display -->
-          <div class="text-center mb-6">
-            <div class="text-6xl font-bold text-primary">{{ bpmInput() }}</div>
-            <div class="text-sm opacity-70">BPM</div>
+          <div class="text-center mb-8 relative">
+            <div class="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-pink-500/20 blur-3xl"></div>
+            <div class="relative">
+              <div class="text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 mb-2">
+                {{ bpmInput() }}
+              </div>
+              <div class="text-lg text-glass-muted font-medium tracking-widest uppercase">Beats por Minuto</div>
+            </div>
           </div>
 
           <!-- Control de BPM -->
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text">Tempo</span>
-            </label>
+          <div class="mb-8">
+            <div class="flex justify-between items-center mb-3">
+              <span class="text-glass-muted text-sm font-medium">TEMPO</span>
+              <div class="flex gap-2">
+                <span class="text-glass-muted text-sm">40</span>
+                <span class="text-glass-muted text-sm">140</span>
+                <span class="text-glass-muted text-sm">240</span>
+              </div>
+            </div>
             <input
               type="range"
               min="40"
               max="240"
               [value]="bpmInput()"
               (input)="onBpmChange(+$any($event.target).value)"
-              class="range range-primary"
+              class="glass-range w-full"
               step="1"
             />
-            <div class="w-full flex justify-between text-xs px-2 mt-1">
-              <span>40</span>
-              <span>140</span>
-              <span>240</span>
-            </div>
           </div>
 
-          <!-- Botón Play/Stop -->
-          <div class="card-actions justify-center mt-6">
+          <!-- Botón Play/Stop con efecto especial -->
+          <div class="flex justify-center">
             <button
-              class="btn btn-lg"
-              [class.btn-error]="metronomeState().isPlaying"
-              [class.btn-success]="!metronomeState().isPlaying"
+              class="relative group"
               (click)="toggleMetronome()"
             >
-              @if (metronomeState().isPlaying) {
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
-                </svg>
-                Detener
-              } @else {
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Iniciar
-              }
+              <div class="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full blur-xl opacity-70 group-hover:opacity-100 transition-opacity"></div>
+              <div
+                class="relative px-12 py-6 rounded-full font-bold text-lg text-white transition-all duration-300 flex items-center gap-3"
+                [class.bg-gradient-to-r]="!metronomeState().isPlaying"
+                [class.from-purple-500]="!metronomeState().isPlaying"
+                [class.to-pink-500]="!metronomeState().isPlaying"
+                [class.bg-gradient-to-r]="metronomeState().isPlaying"
+                [class.from-red-500]="metronomeState().isPlaying"
+                [class.to-orange-500]="metronomeState().isPlaying"
+              >
+                @if (metronomeState().isPlaying) {
+                  <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                    <rect x="6" y="4" width="4" height="16" rx="1"></rect>
+                    <rect x="14" y="4" width="4" height="16" rx="1"></rect>
+                  </svg>
+                  DETENER
+                } @else {
+                  <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z"></path>
+                  </svg>
+                  INICIAR
+                }
+              </div>
             </button>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Controles -->
-    <div class="space-y-4">
-      <!-- Presets -->
-      <div class="card bg-base-100 shadow-xl">
-        <div class="card-body">
-          <h2 class="card-title text-lg">Presets</h2>
-          <div class="form-control">
-            <select
-              class="select select-bordered w-full"
-              [value]="selectedPreset() || ''"
-              (change)="loadPreset($any($event.target).value)"
-            >
-              <option value="">Seleccionar preset...</option>
-              @for (preset of presets(); track preset.id) {
-                <option [value]="preset.id!">{{ preset.name }}</option>
-              }
-            </select>
+      <!-- Panel de controles -->
+      <div class="space-y-4">
+        <!-- Presets -->
+        <div class="glass-strong rounded-2xl shadow-glass p-6">
+          <h3 class="text-lg font-bold text-glass mb-4 flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+            </svg>
+            Presets
+          </h3>
+          <select
+            class="w-full glass rounded-xl px-4 py-3 text-glass focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-pointer"
+            [value]="selectedPreset() || ''"
+            (change)="loadPreset($any($event.target).value)"
+          >
+            <option value="">Seleccionar preset...</option>
+            @for (preset of presets(); track preset.id) {
+              <option [value]="preset.id!">{{ preset.name }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Compás -->
+        <div class="glass-strong rounded-2xl shadow-glass p-6">
+          <h3 class="text-lg font-bold text-glass mb-4 flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            Compás
+          </h3>
+          <div class="grid grid-cols-4 gap-2">
+            @for (ts of timeSignatures; track ts) {
+              <button
+                class="px-3 py-2 rounded-xl text-glass font-medium transition-all"
+                [class.glass]="metronomeState().timeSignature !== ts"
+                [class.bg-gradient-to-br]="metronomeState().timeSignature === ts"
+                [class.from-purple-500]="metronomeState().timeSignature === ts"
+                [class.to-pink-500]="metronomeState().timeSignature === ts"
+                [class.glow-purple]="metronomeState().timeSignature === ts"
+                (click)="onTimeSignatureChange(ts)"
+              >
+                {{ ts }}
+              </button>
+            }
           </div>
         </div>
-      </div>
 
-      <!-- Compás -->
-      <div class="card bg-base-100 shadow-xl">
-        <div class="card-body">
-          <h2 class="card-title text-lg">Compás</h2>
-          <div class="form-control">
-            <select
-              class="select select-bordered w-full"
-              [value]="metronomeState().timeSignature"
-              (change)="onTimeSignatureChange($any($event.target).value)"
-            >
-              @for (ts of timeSignatures; track ts) {
-                <option [value]="ts">{{ ts }}</option>
-              }
-            </select>
+        <!-- Tipo de sonido -->
+        <div class="glass-strong rounded-2xl shadow-glass p-6">
+          <h3 class="text-lg font-bold text-glass mb-4 flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
+            </svg>
+            Sonido
+          </h3>
+          <div class="space-y-2">
+            @for (sound of soundTypes; track sound) {
+              <button
+                class="w-full px-4 py-3 rounded-xl text-glass font-medium transition-all text-left"
+                [class.glass]="metronomeState().soundType !== sound"
+                [class.bg-gradient-to-br]="metronomeState().soundType === sound"
+                [class.from-purple-500]="metronomeState().soundType === sound"
+                [class.to-pink-500]="metronomeState().soundType === sound"
+                (click)="onSoundTypeChange(sound)"
+              >
+                {{ sound === 'click' ? 'Click' : sound === 'beep' ? 'Beep' : 'Madera' }}
+              </button>
+            }
           </div>
         </div>
-      </div>
 
-      <!-- Tipo de sonido -->
-      <div class="card bg-base-100 shadow-xl">
-        <div class="card-body">
-          <h2 class="card-title text-lg">Sonido</h2>
-          <div class="form-control">
-            <select
-              class="select select-bordered w-full"
-              [value]="metronomeState().soundType"
-              (change)="onSoundTypeChange($any($event.target).value)"
-            >
-              <option value="click">Click</option>
-              <option value="beep">Beep</option>
-              <option value="wood">Madera</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <!-- Acentuar primer tiempo -->
-      <div class="card bg-base-100 shadow-xl">
-        <div class="card-body">
-          <div class="form-control">
-            <label class="label cursor-pointer">
-              <span class="label-text">Acentuar primer tiempo</span>
+        <!-- Acentuar primer tiempo -->
+        <div class="glass-strong rounded-2xl shadow-glass p-6">
+          <label class="flex items-center justify-between cursor-pointer">
+            <div class="flex items-center gap-3">
+              <svg class="w-5 h-5 text-glass" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              <span class="text-glass font-medium">Acentuar primer tiempo</span>
+            </div>
+            <div class="relative">
               <input
                 type="checkbox"
-                class="toggle toggle-primary"
+                class="sr-only peer"
                 [checked]="metronomeState().accentFirst"
                 (change)="onAccentFirstChange($any($event.target).checked)"
               />
-            </label>
-          </div>
+              <div class="w-14 h-7 glass rounded-full peer peer-checked:bg-gradient-to-r peer-checked:from-purple-500 peer-checked:to-pink-500 transition-all"></div>
+              <div class="absolute left-1 top-1 bg-white w-5 h-5 rounded-full transition-all peer-checked:translate-x-7"></div>
+            </div>
+          </label>
         </div>
       </div>
     </div>
