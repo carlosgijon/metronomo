@@ -36,3 +36,12 @@ temp/
 # Testing
 **/coverage/
 **/.nyc_output/
+
+# Capacitor - ignorar proyectos nativos generados
+# (se regeneran con npx cap add ios/android)
+frontend/ios/
+frontend/android/
+
+# Pero mantener configuración de Capacitor
+!frontend/capacitor.config.ts
+!frontend/capacitor.config.json

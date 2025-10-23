@@ -35,7 +35,8 @@ services:
       DB_NAME: metronome
       DB_USER: metronome_user
       DB_PASSWORD: ${DB_PASSWORD}
-      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:4200}
+      # CORS actualizado para apps móviles (capacitor://localhost y http://localhost)
+      CORS_ORIGIN: ${CORS_ORIGIN:-*}
     ports:
       - "3000:3000"
     depends_on:
@@ -45,19 +46,6 @@ services:
       - metronome-network
     volumes:
       - backend_node_modules:/app/node_modules
-
-  frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
-    container_name: metronome-frontend
-    restart: unless-stopped
-    ports:
-      - "0.0.0.0:${FRONTEND_PORT:-80}:80"
-    depends_on:
-      - backend
-    networks:
-      - metronome-network
 
   pgadmin:
     image: dpage/pgadmin4:latest
