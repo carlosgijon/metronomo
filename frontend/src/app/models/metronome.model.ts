@@ -6,6 +6,7 @@ export interface MetronomeState {
   accentFirst: boolean;
   soundType: 'click' | 'beep' | 'wood';
   timestamp: number; // timestamp del servidor
+  startTime?: number; // tiempo absoluto sincronizado de inicio (opcional)
 }
 
 export interface BeatEvent {

@@ -126,14 +126,25 @@ export class MetronomeGateway
       return;
     }
 
+    const currentState = this.metronomeService.getState();
+
+    // Tiempo de inicio sincronizado: 200ms en el futuro
+    // Esto da tiempo a todos los clientes para recibir el mensaje y prepararse
+    const startTime = Date.now() + 200;
+
     this.metronomeService.start();
 
-    // Broadcast del nuevo estado a todos los clientes
+    // Broadcast del nuevo estado con startTime sincronizado
     this.server.emit(WSMessageType.METRONOME_STATE, {
       type: WSMessageType.METRONOME_STATE,
-      payload: this.metronomeService.getState(),
-      timestamp: Date.now(),
+      payload: {
+        ...this.metronomeService.getState(),
+        startTime, // Tiempo absoluto de inicio
+      },
+      timestamp: Date.now(), // Tiempo del servidor ahora
     });
+
+    this.logger.log(`Metrónomo iniciado, startTime: ${startTime}`);
   }
 
   @SubscribeMessage(WSMessageType.METRONOME_STOP)
