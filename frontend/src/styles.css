@@ -1,181 +1,87 @@
-/* Importar estilos de ng-zorro-antd */
-@import "ng-zorro-antd/ng-zorro-antd.min.css";
+/* Core CSS required for Ionic components to work properly */
+@import "@ionic/angular/css/core.css";
 
-/* Reset y configuración base */
-* {
+/* Basic CSS for apps built with Ionic */
+@import "@ionic/angular/css/normalize.css";
+@import "@ionic/angular/css/structure.css";
+@import "@ionic/angular/css/typography.css";
+@import "@ionic/angular/css/display.css";
+
+/* Optional CSS utils that can be commented out */
+@import "@ionic/angular/css/padding.css";
+@import "@ionic/angular/css/float-elements.css";
+@import "@ionic/angular/css/text-alignment.css";
+@import "@ionic/angular/css/text-transformation.css";
+@import "@ionic/angular/css/flex-utils.css";
+
+/* Custom styles for metronome */
+.metronome-fullscreen-card {
+  height: 100vh;
   margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+  --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
-html, body {
-  height: 100%;
-  width: 100%;
-  overflow-x: hidden;
-}
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
-    'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
-    'Noto Color Emoji';
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background: #f0f2f5;
-}
-
-/* Configuración mobile-first */
-.app-container {
-  min-height: 100vh;
-  padding: 16px;
-}
-
-@media (min-width: 768px) {
-  .app-container {
-    padding: 24px;
-  }
-}
-
-/* Estilos personalizados para metrónomo */
-.metronome-bpm-display {
-  font-size: 4rem;
-  font-weight: 700;
-  color: #1890ff;
+.bpm-display {
+  font-size: 120px;
+  font-weight: 100;
+  letter-spacing: -5px;
+  color: white;
   text-align: center;
+  margin: 0;
   line-height: 1;
-  margin: 20px 0;
 }
 
-@media (min-width: 768px) {
-  .metronome-bpm-display {
-    font-size: 6rem;
-  }
+.bpm-label {
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 3px;
+  color: rgba(255, 255, 255, 0.7);
+  text-align: center;
+  margin-top: 8px;
+}
+
+.play-button {
+  width: 160px;
+  height: 160px;
+  --border-radius: 50%;
+  font-size: 24px;
+  font-weight: 600;
 }
 
 .beat-indicator {
-  width: 80px;
-  height: 80px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
-  background: #1890ff;
+  background: rgba(255, 255, 255, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 2rem;
+  font-size: 24px;
   font-weight: bold;
-  margin: 0 auto;
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  transition: all 0.2s ease;
 }
 
 .beat-indicator.active {
+  background: white;
+  color: #667eea;
   transform: scale(1.2);
-  box-shadow: 0 0 30px rgba(24, 144, 255, 0.8);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
 }
 
 .beat-indicator.accent {
   background: #ff4d4f;
+  color: white;
 }
 
-@media (min-width: 768px) {
-  .beat-indicator {
-    width: 120px;
-    height: 120px;
-    font-size: 3rem;
-  }
-}
-
-/* Slider personalizado para BPM */
-.bpm-slider {
-  margin: 24px 0;
-}
-
-/* Botón de control principal grande */
-.main-control-btn {
-  height: 60px;
-  font-size: 18px;
-  font-weight: 600;
-  border-radius: 8px;
-}
-
-@media (min-width: 768px) {
-  .main-control-btn {
-    height: 80px;
-    font-size: 24px;
-  }
-}
-
-/* Cards con altura mínima para touch */
-.touch-card {
-  margin-bottom: 16px;
-  min-height: 60px;
-}
-
-/* Responsive grid para presets */
-.preset-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 12px;
-}
-
-/* Botones de preset con altura táctil */
-.preset-btn {
-  height: 48px;
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.9);
   font-size: 14px;
 }
 
-/* Segmented control responsive */
-nz-segmented {
-  width: 100%;
-}
-
-/* Radio buttons con mejor espaciado en móvil */
-.radio-group-vertical {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.radio-group-horizontal {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-/* Animación de pulso para beat */
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.15);
-  }
-}
-
-.pulse-animation {
-  animation: pulse 0.3s ease-in-out;
-}
-
-/* Espaciado para mobile */
-.mobile-spacing {
-  padding: 16px;
-}
-
-@media (min-width: 768px) {
-  .mobile-spacing {
-    padding: 24px;
-  }
-}
-
-/* Full height container */
-.full-height {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Center content */
-.center-content {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
+.info-item ion-icon {
+  font-size: 20px;
 }

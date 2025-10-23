@@ -3,22 +3,32 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MetronomeSyncService } from '../../services/metronome-sync.service';
 import { AuthService } from '../../services/auth.service';
-import { NzCardModule } from 'ng-zorro-antd/card';
-import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzIconModule } from 'ng-zorro-antd/icon';
-import { NzBadgeModule } from 'ng-zorro-antd/badge';
-import { NzStatisticModule } from 'ng-zorro-antd/statistic';
+import {
+  IonContent,
+  IonCard,
+  IonCardContent,
+  IonButton,
+  IonIcon,
+  IonChip,
+  IonLabel,
+  IonBadge
+} from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import { person, logOut, checkmarkCircle, closeCircle } from 'ionicons/icons';
 
 @Component({
   selector: 'app-follower',
   standalone: true,
   imports: [
     CommonModule,
-    NzCardModule,
-    NzButtonModule,
-    NzIconModule,
-    NzBadgeModule,
-    NzStatisticModule
+    IonContent,
+    IonCard,
+    IonCardContent,
+    IonButton,
+    IonIcon,
+    IonChip,
+    IonLabel,
+    IonBadge
   ],
   templateUrl: './follower.component.html',
   styleUrl: './follower.component.css'
@@ -42,6 +52,10 @@ export class FollowerComponent {
     const numBeats = this.beatsPerMeasure();
     return Array.from({ length: numBeats }, (_, i) => i + 1);
   });
+
+  constructor() {
+    addIcons({ person, logOut, checkmarkCircle, closeCircle });
+  }
 
   isBeatActive(beatNumber: number): boolean {
     return this.metronomeState().currentBeat === beatNumber;

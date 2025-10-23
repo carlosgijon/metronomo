@@ -6,16 +6,23 @@ import { MetronomeSyncService } from '../../services/metronome-sync.service';
 import { AuthService } from '../../services/auth.service';
 import { PresetService } from '../../services/preset.service';
 import { Preset } from '../../models/preset.model';
-import { NzCardModule } from 'ng-zorro-antd/card';
-import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzSliderModule } from 'ng-zorro-antd/slider';
-import { NzSelectModule } from 'ng-zorro-antd/select';
-import { NzSwitchModule } from 'ng-zorro-antd/switch';
-import { NzIconModule } from 'ng-zorro-antd/icon';
-import { NzBadgeModule } from 'ng-zorro-antd/badge';
-import { NzSpaceModule } from 'ng-zorro-antd/space';
-import { NzDividerModule } from 'ng-zorro-antd/divider';
-import { NzSegmentedModule } from 'ng-zorro-antd/segmented';
+import {
+  IonContent,
+  IonCard,
+  IonCardContent,
+  IonButton,
+  IonIcon,
+  IonChip,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+  IonRange,
+  IonToggle,
+  IonItem,
+  IonList
+} from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import { play, pause, musicalNotes, settings, person, logOut } from 'ionicons/icons';
 
 @Component({
   selector: 'app-master',
@@ -23,16 +30,19 @@ import { NzSegmentedModule } from 'ng-zorro-antd/segmented';
   imports: [
     CommonModule,
     FormsModule,
-    NzCardModule,
-    NzButtonModule,
-    NzSliderModule,
-    NzSelectModule,
-    NzSwitchModule,
-    NzIconModule,
-    NzBadgeModule,
-    NzSpaceModule,
-    NzDividerModule,
-    NzSegmentedModule
+    IonContent,
+    IonCard,
+    IonCardContent,
+    IonButton,
+    IonIcon,
+    IonChip,
+    IonLabel,
+    IonSelect,
+    IonSelectOption,
+    IonRange,
+    IonToggle,
+    IonItem,
+    IonList
   ],
   templateUrl: './master.component.html',
   styleUrl: './master.component.css'
@@ -52,16 +62,6 @@ export class MasterComponent {
 
   timeSignatures = ['2/4', '3/4', '4/4', '5/4', '6/8', '7/8', '9/8', '12/8'];
   soundTypes: Array<'click' | 'beep' | 'wood'> = ['click', 'beep', 'wood'];
-  soundTypeOptions = [
-    { label: 'Click', value: 'click' },
-    { label: 'Beep', value: 'beep' },
-    { label: 'Madera', value: 'wood' }
-  ];
-  bpmMarks: Record<number, string> = {
-    40: '40',
-    120: '120',
-    240: '240'
-  };
 
   // Computed para saber cuántos beats tiene el compás
   beatsPerMeasure = computed(() => {
@@ -77,6 +77,9 @@ export class MasterComponent {
 
   constructor() {
     this.bpmInput.set(this.metronomeState().bpm);
+
+    // Register icons
+    addIcons({ play, pause, musicalNotes, settings, person, logOut });
   }
 
   async toggleMetronome(): Promise<void> {
@@ -90,25 +93,26 @@ export class MasterComponent {
     }
   }
 
-  onBpmChange(value: number): void {
+  onBpmChange(event: any): void {
+    const value = event.detail.value;
     this.bpmInput.set(value);
     this.metronomeService.setBpm(value);
   }
 
-  onTimeSignatureChange(timeSignature: string | number): void {
-    this.metronomeService.setTimeSignature(String(timeSignature));
+  onTimeSignatureChange(event: any): void {
+    this.metronomeService.setTimeSignature(event.detail.value);
   }
 
-  onSoundTypeChange(soundType: string | number): void {
-    const soundTypeStr = String(soundType) as 'click' | 'beep' | 'wood';
-    this.metronomeService.setSoundType(soundTypeStr);
+  onSoundTypeChange(event: any): void {
+    this.metronomeService.setSoundType(event.detail.value);
   }
 
-  onAccentFirstChange(accentFirst: boolean): void {
-    this.metronomeService.setAccentFirst(accentFirst);
+  onAccentFirstChange(event: any): void {
+    this.metronomeService.setAccentFirst(event.detail.checked);
   }
 
-  loadPreset(presetId: string): void {
+  loadPreset(event: any): void {
+    const presetId = event.detail.value;
     const preset = this.presets().find(p => p.id === presetId);
     if (preset) {
       this.selectedPreset.set(presetId);

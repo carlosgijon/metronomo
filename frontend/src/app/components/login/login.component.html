@@ -1,135 +1,92 @@
-<div class="center-content mobile-spacing">
-  <nz-card style="max-width: 500px; width: 100%;">
-    <div style="text-align: center; margin-bottom: 32px;">
-      <span nz-icon nzType="sound" nzTheme="twotone" style="font-size: 48px;"></span>
-      <h1 style="font-size: 28px; font-weight: 700; margin: 16px 0 8px; color: #1890ff;">
-        Metrónomo Sincronizado
-      </h1>
-      <p style="color: rgba(0, 0, 0, 0.45);">Sincroniza el tempo de tu banda</p>
-    </div>
+<ion-content [fullscreen]="true">
+  <div style="height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px;">
+    <ion-card style="max-width: 400px; width: 100%; --background: rgba(255, 255, 255, 0.95);">
+      <ion-card-content style="padding: 32px;">
+        <!-- Logo -->
+        <div style="text-align: center; margin-bottom: 32px;">
+          <ion-icon name="musical-notes" style="font-size: 64px; color: #667eea;"></ion-icon>
+          <h1 style="margin: 16px 0 8px; font-size: 32px; font-weight: 700; color: #333;">Metrónomo</h1>
+          <p style="color: #666; margin: 0;">Sincroniza el tempo de tu banda</p>
+        </div>
 
-    @if (errorMessage()) {
-      <nz-alert
-        nzType="error"
-        [nzMessage]="errorMessage()"
-        nzShowIcon
-        nzCloseable
-        (nzOnClose)="errorMessage.set('')"
-        style="margin-bottom: 24px;">
-      </nz-alert>
-    }
+        <!-- Error message -->
+        @if (errorMessage()) {
+          <div style="background: #fee; border-left: 4px solid #f44; padding: 12px; margin-bottom: 20px; border-radius: 4px;">
+            <ion-text color="danger">
+              <p style="margin: 0; color: #c33;">{{ errorMessage() }}</p>
+            </ion-text>
+          </div>
+        }
 
-    <form nz-form (ngSubmit)="onLogin()">
-      <nz-form-item>
-        <nz-form-label nzRequired>Nombre</nz-form-label>
-        <nz-form-control nzErrorTip="Por favor ingresa tu nombre">
-          <input
-            nz-input
-            type="text"
-            placeholder="Tu nombre"
-            [(ngModel)]="name"
-            name="name"
+        <!-- Formulario -->
+        <form (ngSubmit)="onLogin()">
+          <!-- Nombre -->
+          <ion-item lines="none" style="--background: #f5f5f5; --border-radius: 8px; margin-bottom: 20px;">
+            <ion-label position="floating">Tu Nombre</ion-label>
+            <ion-input
+              type="text"
+              [(ngModel)]="name"
+              name="name"
+              [disabled]="isLoading()"
+              required>
+            </ion-input>
+          </ion-item>
+
+          <!-- Rol -->
+          <div style="margin-bottom: 24px;">
+            <ion-label style="display: block; margin-bottom: 12px; font-weight: 600; color: #333;">Selecciona tu rol</ion-label>
+            <ion-radio-group [value]="selectedRole()" (ionChange)="selectRole($event.detail.value)">
+              <ion-item lines="none" style="--background: #f5f5f5; --border-radius: 8px; margin-bottom: 8px; cursor: pointer;">
+                <ion-icon name="person" slot="start" style="color: #667eea;"></ion-icon>
+                <ion-label>
+                  <h2 style="font-weight: 600;">Maestro</h2>
+                  <p style="font-size: 14px; color: #666;">Controlar el metrónomo</p>
+                </ion-label>
+                <ion-radio slot="end" [value]="UserRole.MASTER"></ion-radio>
+              </ion-item>
+
+              <ion-item lines="none" style="--background: #f5f5f5; --border-radius: 8px; margin-bottom: 8px; cursor: pointer;">
+                <ion-icon name="people" slot="start" style="color: #667eea;"></ion-icon>
+                <ion-label>
+                  <h2 style="font-weight: 600;">Seguidor</h2>
+                  <p style="font-size: 14px; color: #666;">Escuchar el metrónomo</p>
+                </ion-label>
+                <ion-radio slot="end" [value]="UserRole.FOLLOWER"></ion-radio>
+              </ion-item>
+
+              <ion-item lines="none" style="--background: #f5f5f5; --border-radius: 8px; cursor: pointer;">
+                <ion-icon name="settings" slot="start" style="color: #667eea;"></ion-icon>
+                <ion-label>
+                  <h2 style="font-weight: 600;">Admin</h2>
+                  <p style="font-size: 14px; color: #666;">Gestionar presets</p>
+                </ion-label>
+                <ion-radio slot="end" [value]="UserRole.ADMIN"></ion-radio>
+              </ion-item>
+            </ion-radio-group>
+          </div>
+
+          <!-- Botón de submit -->
+          <ion-button
+            expand="block"
+            type="submit"
             [disabled]="isLoading()"
-            required
-            style="height: 48px; font-size: 16px;" />
-        </nz-form-control>
-      </nz-form-item>
+            style="--background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); height: 56px; font-size: 18px; font-weight: 600;">
+            @if (isLoading()) {
+              <ion-spinner name="crescent" style="margin-right: 8px;"></ion-spinner>
+              Conectando...
+            } @else {
+              Conectar
+            }
+          </ion-button>
+        </form>
 
-      <nz-form-item>
-        <nz-form-label>Selecciona tu rol</nz-form-label>
-        <nz-form-control>
-          <nz-radio-group
-            [(ngModel)]="selectedRole"
-            name="role"
-            style="width: 100%;">
-            <div style="display: grid; grid-template-columns: 1fr; gap: 12px;">
-              <label
-                nz-radio
-                [nzValue]="UserRole.MASTER"
-                style="
-                  display: flex;
-                  align-items: center;
-                  padding: 16px;
-                  border: 2px solid #d9d9d9;
-                  border-radius: 8px;
-                  transition: all 0.3s;
-                  cursor: pointer;
-                  margin: 0;"
-                [style.border-color]="selectedRole() === UserRole.MASTER ? '#1890ff' : '#d9d9d9'"
-                [style.background]="selectedRole() === UserRole.MASTER ? '#e6f7ff' : 'white'">
-                <span style="margin-left: 12px; font-size: 16px; font-weight: 500;">
-                  <span nz-icon nzType="control" nzTheme="outline" style="margin-right: 8px;"></span>
-                  Maestro
-                </span>
-                <span style="margin-left: auto; color: rgba(0,0,0,0.45); font-size: 14px;">Controlar metrónomo</span>
-              </label>
-
-              <label
-                nz-radio
-                [nzValue]="UserRole.FOLLOWER"
-                style="
-                  display: flex;
-                  align-items: center;
-                  padding: 16px;
-                  border: 2px solid #d9d9d9;
-                  border-radius: 8px;
-                  transition: all 0.3s;
-                  cursor: pointer;
-                  margin: 0;"
-                [style.border-color]="selectedRole() === UserRole.FOLLOWER ? '#1890ff' : '#d9d9d9'"
-                [style.background]="selectedRole() === UserRole.FOLLOWER ? '#e6f7ff' : 'white'">
-                <span style="margin-left: 12px; font-size: 16px; font-weight: 500;">
-                  <span nz-icon nzType="team" nzTheme="outline" style="margin-right: 8px;"></span>
-                  Seguidor
-                </span>
-                <span style="margin-left: auto; color: rgba(0,0,0,0.45); font-size: 14px;">Escuchar metrónomo</span>
-              </label>
-
-              <label
-                nz-radio
-                [nzValue]="UserRole.ADMIN"
-                style="
-                  display: flex;
-                  align-items: center;
-                  padding: 16px;
-                  border: 2px solid #d9d9d9;
-                  border-radius: 8px;
-                  transition: all 0.3s;
-                  cursor: pointer;
-                  margin: 0;"
-                [style.border-color]="selectedRole() === UserRole.ADMIN ? '#1890ff' : '#d9d9d9'"
-                [style.background]="selectedRole() === UserRole.ADMIN ? '#e6f7ff' : 'white'">
-                <span style="margin-left: 12px; font-size: 16px; font-weight: 500;">
-                  <span nz-icon nzType="setting" nzTheme="outline" style="margin-right: 8px;"></span>
-                  Admin
-                </span>
-                <span style="margin-left: auto; color: rgba(0,0,0,0.45); font-size: 14px;">Gestionar presets</span>
-              </label>
-            </div>
-          </nz-radio-group>
-        </nz-form-control>
-      </nz-form-item>
-
-      <nz-form-item style="margin-bottom: 0;">
-        <button
-          nz-button
-          nzType="primary"
-          nzSize="large"
-          nzBlock
-          type="submit"
-          [nzLoading]="isLoading()"
-          class="main-control-btn">
-          <span nz-icon nzType="thunderbolt" nzTheme="outline"></span>
-          Conectar
-        </button>
-      </nz-form-item>
-    </form>
-
-    <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #f0f0f0; text-align: center;">
-      <p style="color: rgba(0, 0, 0, 0.45); font-size: 14px; margin: 0;">
-        <span nz-icon nzType="info-circle" nzTheme="outline"></span>
-        Conecta y sincroniza el tempo perfectamente con tu banda
-      </p>
-    </div>
-  </nz-card>
-</div>
+        <!-- Info footer -->
+        <div style="text-align: center; margin-top: 24px; padding-top: 24px; border-top: 1px solid #e0e0e0;">
+          <p style="color: #999; font-size: 14px; margin: 0;">
+            Conecta y sincroniza el tempo perfectamente
+          </p>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>

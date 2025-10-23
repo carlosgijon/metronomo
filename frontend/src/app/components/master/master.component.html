@@ -1,132 +1,132 @@
-<div class="app-container">
-  <!-- Header -->
-  <nz-card style="margin-bottom: 16px;">
-    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-      <div>
-        <h1 style="margin: 0; font-size: 20px; font-weight: 600; color: #1890ff;">
-          <span nz-icon nzType="control" nzTheme="outline"></span>
-          Metrónomo Maestro
-        </h1>
-        <p style="margin: 4px 0 0; color: rgba(0,0,0,0.45); font-size: 14px;">{{ user()?.name }}</p>
-      </div>
-      <button nz-button nzType="default" (click)="logout()">
-        <span nz-icon nzType="logout" nzTheme="outline"></span>
-        Salir
-      </button>
-    </div>
-  </nz-card>
-
-  <!-- BPM Display y Control Principal -->
-  <nz-card class="touch-card" style="margin-bottom: 16px; text-align: center;">
-    <!-- Visualización de beats -->
-    <div style="display: flex; justify-content: center; gap: 8px; margin-bottom: 24px; flex-wrap: wrap;">
-      @for (beat of beats(); track beat) {
-        <div
-          class="beat-indicator"
-          [class.active]="isBeatActive(beat)"
-          [class.accent]="isBeatActive(beat) && beat === 1 && metronomeState().accentFirst">
-          {{ beat }}
+<ion-content [fullscreen]="true">
+  <ion-card class="metronome-fullscreen-card">
+    <ion-card-content style="height: 100%; display: flex; flex-direction: column; padding: 20px;">
+      <!-- Header con info del usuario y logout -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <div class="info-item">
+          <ion-icon name="person"></ion-icon>
+          <span>{{ user()?.name }}</span>
         </div>
-      }
-    </div>
+        <ion-button fill="clear" size="small" (click)="logout()" style="color: white;">
+          <ion-icon name="log-out" slot="icon-only"></ion-icon>
+        </ion-button>
+      </div>
 
-    <!-- BPM Grande -->
-    <div class="metronome-bpm-display">{{ bpmInput() }}</div>
-    <p style="color: rgba(0,0,0,0.45); margin-bottom: 24px; text-transform: uppercase; letter-spacing: 2px; font-size: 12px;">
-      BPM
-    </p>
+      <!-- Info adicional: compás, sonido, acento -->
+      <div style="display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px;">
+        <ion-chip style="--background: rgba(255, 255, 255, 0.2); color: white;">
+          <ion-label>{{ metronomeState().timeSignature }}</ion-label>
+        </ion-chip>
+        <ion-chip style="--background: rgba(255, 255, 255, 0.2); color: white;">
+          <ion-label>
+            @switch (metronomeState().soundType) {
+              @case ('click') { Click }
+              @case ('beep') { Beep }
+              @case ('wood') { Madera }
+            }
+          </ion-label>
+        </ion-chip>
+        <ion-chip style="--background: rgba(255, 255, 255, 0.2); color: white;">
+          <ion-label>{{ metronomeState().accentFirst ? 'Acento ON' : 'Acento OFF' }}</ion-label>
+        </ion-chip>
+      </div>
 
-    <!-- Slider de BPM -->
-    <div class="bpm-slider">
-      <nz-slider
-        [nzMin]="40"
-        [nzMax]="240"
-        [(ngModel)]="bpmInput"
-        (ngModelChange)="onBpmChange($event)"
-        [nzMarks]="bpmMarks">
-      </nz-slider>
-    </div>
+      <!-- BPM Display GRANDE Y FINO arriba centro -->
+      <div style="flex: 0 0 auto; text-align: center; margin-bottom: 32px;">
+        <div class="bpm-display">{{ bpmInput() }}</div>
+        <div class="bpm-label">BPM</div>
+      </div>
 
-    <!-- Botón Play/Stop Grande -->
-    <button
-      nz-button
-      [nzType]="metronomeState().isPlaying ? 'default' : 'primary'"
-      [nzDanger]="metronomeState().isPlaying"
-      nzSize="large"
-      nzBlock
-      class="main-control-btn"
-      (click)="toggleMetronome()">
-      @if (metronomeState().isPlaying) {
-        <span nz-icon nzType="pause-circle" nzTheme="outline"></span>
-        DETENER
-      } @else {
-        <span nz-icon nzType="play-circle" nzTheme="outline"></span>
-        INICIAR
-      }
-    </button>
-  </nz-card>
+      <!-- Área central: Botón PLAY ENORME -->
+      <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 32px;">
+        <!-- Visualización de beats -->
+        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+          @for (beat of beats(); track beat) {
+            <div
+              class="beat-indicator"
+              [class.active]="isBeatActive(beat) && !metronomeState().accentFirst"
+              [class.accent]="isBeatActive(beat) && beat === 1 && metronomeState().accentFirst">
+              {{ beat }}
+            </div>
+          }
+        </div>
 
-  <!-- Presets -->
-  <nz-card class="touch-card" [nzTitle]="presetsTitle" style="margin-bottom: 16px;">
-    <ng-template #presetsTitle>
-      <span nz-icon nzType="star" nzTheme="outline"></span>
-      Presets
-    </ng-template>
-    <nz-select
-      nzPlaceHolder="Seleccionar preset..."
-      nzSize="large"
-      nzAllowClear
-      style="width: 100%;"
-      [(ngModel)]="selectedPreset"
-      (ngModelChange)="selectedPreset() && loadPreset(selectedPreset()!)">
-      @for (preset of presets(); track preset.id) {
-        <nz-option [nzValue]="preset.id!" [nzLabel]="preset.name"></nz-option>
-      }
-    </nz-select>
-  </nz-card>
+        <!-- Botón PLAY/PAUSE GIGANTE -->
+        <ion-button
+          class="play-button"
+          [color]="metronomeState().isPlaying ? 'danger' : 'light'"
+          (click)="toggleMetronome()">
+          <ion-icon
+            [name]="metronomeState().isPlaying ? 'pause' : 'play'"
+            slot="icon-only"
+            style="font-size: 64px;">
+          </ion-icon>
+        </ion-button>
+      </div>
 
-  <!-- Compás -->
-  <nz-card class="touch-card" [nzTitle]="timeSignatureTitle" style="margin-bottom: 16px;">
-    <ng-template #timeSignatureTitle>
-      <span nz-icon nzType="clock-circle" nzTheme="outline"></span>
-      Compás
-    </ng-template>
-    <nz-segmented
-      [nzOptions]="timeSignatures"
-      [ngModel]="metronomeState().timeSignature"
-      (nzValueChange)="onTimeSignatureChange($event)"
-      nzBlock
-      nzSize="large">
-    </nz-segmented>
-  </nz-card>
+      <!-- Presets y controles abajo del todo -->
+      <div style="flex: 0 0 auto;">
+        <!-- Slider de BPM -->
+        <div style="margin-bottom: 16px;">
+          <ion-range
+            [min]="40"
+            [max]="240"
+            [value]="bpmInput()"
+            [pin]="true"
+            (ionChange)="onBpmChange($event)"
+            style="--bar-background: rgba(255, 255, 255, 0.3); --bar-background-active: white; --knob-background: white;">
+          </ion-range>
+        </div>
 
-  <!-- Tipo de Sonido -->
-  <nz-card class="touch-card" [nzTitle]="soundTitle" style="margin-bottom: 16px;">
-    <ng-template #soundTitle>
-      <span nz-icon nzType="sound" nzTheme="outline"></span>
-      Tipo de Sonido
-    </ng-template>
-    <nz-segmented
-      [nzOptions]="soundTypeOptions"
-      [ngModel]="metronomeState().soundType"
-      (nzValueChange)="onSoundTypeChange($event)"
-      nzBlock
-      nzSize="large">
-    </nz-segmented>
-  </nz-card>
+        <!-- Selector de Presets -->
+        <ion-item lines="none" style="--background: rgba(255, 255, 255, 0.1); --border-radius: 12px; margin-bottom: 12px;">
+          <ion-label style="color: white;">Preset</ion-label>
+          <ion-select
+            placeholder="Seleccionar..."
+            (ionChange)="loadPreset($event)"
+            style="color: white; max-width: 60%;">
+            @for (preset of presets(); track preset.id) {
+              <ion-select-option [value]="preset.id!">{{ preset.name }}</ion-select-option>
+            }
+          </ion-select>
+        </ion-item>
 
-  <!-- Acentuar Primer Tiempo -->
-  <nz-card class="touch-card" style="margin-bottom: 16px;">
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-      <span style="font-size: 16px;">
-        <span nz-icon nzType="check-circle" nzTheme="outline"></span>
-        Acentuar primer tiempo
-      </span>
-      <nz-switch
-        [ngModel]="metronomeState().accentFirst"
-        (ngModelChange)="onAccentFirstChange($event)"
-        nzSize="default">
-      </nz-switch>
-    </div>
-  </nz-card>
-</div>
+        <!-- Compás -->
+        <ion-item lines="none" style="--background: rgba(255, 255, 255, 0.1); --border-radius: 12px; margin-bottom: 12px;">
+          <ion-label style="color: white;">Compás</ion-label>
+          <ion-select
+            [value]="metronomeState().timeSignature"
+            (ionChange)="onTimeSignatureChange($event)"
+            style="color: white; max-width: 30%;">
+            @for (ts of timeSignatures; track ts) {
+              <ion-select-option [value]="ts">{{ ts }}</ion-select-option>
+            }
+          </ion-select>
+        </ion-item>
+
+        <!-- Sonido -->
+        <ion-item lines="none" style="--background: rgba(255, 255, 255, 0.1); --border-radius: 12px; margin-bottom: 12px;">
+          <ion-label style="color: white;">Sonido</ion-label>
+          <ion-select
+            [value]="metronomeState().soundType"
+            (ionChange)="onSoundTypeChange($event)"
+            style="color: white; max-width: 40%;">
+            <ion-select-option value="click">Click</ion-select-option>
+            <ion-select-option value="beep">Beep</ion-select-option>
+            <ion-select-option value="wood">Madera</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <!-- Acento primer tiempo -->
+        <ion-item lines="none" style="--background: rgba(255, 255, 255, 0.1); --border-radius: 12px;">
+          <ion-label style="color: white;">Acentuar primer tiempo</ion-label>
+          <ion-toggle
+            [checked]="metronomeState().accentFirst"
+            (ionChange)="onAccentFirstChange($event)"
+            slot="end">
+          </ion-toggle>
+        </ion-item>
+      </div>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

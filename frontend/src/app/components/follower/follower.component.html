@@ -1,107 +1,82 @@
-<div class="app-container">
-  <!-- Header -->
-  <nz-card style="margin-bottom: 16px;">
-    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-      <div>
-        <h1 style="margin: 0; font-size: 20px; font-weight: 600; color: #1890ff;">
-          <span nz-icon nzType="eye" nzTheme="outline"></span>
-          Metrónomo Seguidor
-        </h1>
-        <p style="margin: 4px 0 0; color: rgba(0,0,0,0.45); font-size: 14px;">{{ user()?.name }}</p>
-      </div>
-      <button nz-button nzType="default" (click)="logout()">
-        <span nz-icon nzType="logout" nzTheme="outline"></span>
-        Salir
-      </button>
-    </div>
-  </nz-card>
-
-  <!-- Estado del metrónomo -->
-  <nz-card style="margin-bottom: 16px; text-align: center;">
-    @if (metronomeState().isPlaying) {
-      <nz-badge nzStatus="success" nzText="Reproduciendo"></nz-badge>
-    } @else {
-      <nz-badge nzStatus="default" nzText="En espera..."></nz-badge>
-    }
-  </nz-card>
-
-  <!-- BPM Display y Visualización -->
-  <nz-card style="margin-bottom: 16px; text-align: center;">
-    <!-- BPM Grande -->
-    <div class="metronome-bpm-display" style="margin-bottom: 8px;">
-      {{ metronomeState().bpm }}
-    </div>
-    <p style="color: rgba(0,0,0,0.45); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 2px; font-size: 12px;">
-      BPM
-    </p>
-    <p style="font-size: 24px; font-weight: 600; color: #1890ff; margin-bottom: 24px;">
-      {{ metronomeState().timeSignature }}
-    </p>
-
-    <!-- Visualización de beats -->
-    <div style="display: flex; justify-content: center; gap: 8px; margin-bottom: 24px; flex-wrap: wrap;">
-      @for (beat of beats(); track beat) {
-        <div
-          class="beat-indicator"
-          [class.active]="isBeatActive(beat)"
-          [class.accent]="isBeatActive(beat) && beat === 1 && metronomeState().accentFirst">
-          {{ beat }}
+<ion-content [fullscreen]="true">
+  <ion-card class="metronome-fullscreen-card">
+    <ion-card-content style="height: 100%; display: flex; flex-direction: column; padding: 20px;">
+      <!-- Header con info del usuario y logout -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <div class="info-item">
+          <ion-icon name="person"></ion-icon>
+          <span>{{ user()?.name }} (Seguidor)</span>
         </div>
-      }
-    </div>
-
-    @if (!metronomeState().isPlaying) {
-      <div style="
-        background: #f0f2f5;
-        border-radius: 8px;
-        padding: 16px;
-        margin-top: 16px;
-        display: flex;
-        align-items: center;
-        gap: 12px;">
-        <span nz-icon nzType="info-circle" nzTheme="outline" style="font-size: 24px; color: #1890ff;"></span>
-        <div style="text-align: left;">
-          <p style="margin: 0; font-weight: 600; color: rgba(0,0,0,0.85);">Esperando instrucciones</p>
-          <p style="margin: 0; font-size: 14px; color: rgba(0,0,0,0.45);">El maestro iniciará el metrónomo en breve...</p>
-        </div>
+        <ion-button fill="clear" size="small" (click)="logout()" style="color: white;">
+          <ion-icon name="log-out" slot="icon-only"></ion-icon>
+        </ion-button>
       </div>
-    }
-  </nz-card>
 
-  <!-- Información adicional en grid -->
-  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
-    <nz-card class="touch-card" [nzTitle]="soundTitle">
-      <ng-template #soundTitle>
-        <span nz-icon nzType="sound" nzTheme="outline"></span>
-        Tipo de Sonido
-      </ng-template>
-      <div style="text-align: center; font-size: 20px; font-weight: 600; color: #1890ff;">
-        @switch (metronomeState().soundType) {
-          @case ('click') { Click }
-          @case ('beep') { Beep }
-          @case ('wood') { Madera }
-        }
-      </div>
-    </nz-card>
-
-    <nz-card class="touch-card" [nzTitle]="accentTitle">
-      <ng-template #accentTitle>
-        <span nz-icon nzType="check-circle" nzTheme="outline"></span>
-        Acento en primer tiempo
-      </ng-template>
-      <div style="text-align: center; font-size: 20px; font-weight: 600;">
-        @if (metronomeState().accentFirst) {
-          <span style="color: #52c41a;">
-            <span nz-icon nzType="check" nzTheme="outline"></span>
-            Activo
-          </span>
+      <!-- Estado del metrónomo -->
+      <div style="margin-bottom: 24px;">
+        @if (metronomeState().isPlaying) {
+          <ion-badge color="success" style="padding: 8px 16px; font-size: 14px;">
+            <ion-icon name="checkmark-circle"></ion-icon>
+            Reproduciendo
+          </ion-badge>
         } @else {
-          <span style="color: rgba(0,0,0,0.25);">
-            <span nz-icon nzType="close" nzTheme="outline"></span>
-            Inactivo
-          </span>
+          <ion-badge color="medium" style="padding: 8px 16px; font-size: 14px;">
+            <ion-icon name="close-circle"></ion-icon>
+            En espera...
+          </ion-badge>
         }
       </div>
-    </nz-card>
-  </div>
-</div>
+
+      <!-- BPM Display GRANDE Y FINO arriba centro -->
+      <div style="flex: 0 0 auto; text-align: center; margin-bottom: 32px;">
+        <div class="bpm-display">{{ metronomeState().bpm }}</div>
+        <div class="bpm-label">BPM</div>
+        <div style="color: rgba(255, 255, 255, 0.8); font-size: 28px; font-weight: 300; margin-top: 12px;">
+          {{ metronomeState().timeSignature }}
+        </div>
+      </div>
+
+      <!-- Área central: Visualización de beats GRANDE -->
+      <div style="flex: 1; display: flex; align-items: center; justify-content: center;">
+        <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+          @for (beat of beats(); track beat) {
+            <div
+              class="beat-indicator"
+              [style.width.px]="80"
+              [style.height.px]="80"
+              [style.font-size.px]="32"
+              [class.active]="isBeatActive(beat) && !metronomeState().accentFirst"
+              [class.accent]="isBeatActive(beat) && beat === 1 && metronomeState().accentFirst">
+              {{ beat }}
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Info adicional abajo -->
+      <div style="flex: 0 0 auto;">
+        <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;">
+          <ion-chip style="--background: rgba(255, 255, 255, 0.2); color: white;">
+            <ion-label>
+              @switch (metronomeState().soundType) {
+                @case ('click') { Click }
+                @case ('beep') { Beep }
+                @case ('wood') { Madera }
+              }
+            </ion-label>
+          </ion-chip>
+          <ion-chip style="--background: rgba(255, 255, 255, 0.2); color: white;">
+            <ion-label>{{ metronomeState().accentFirst ? 'Acento ON' : 'Acento OFF' }}</ion-label>
+          </ion-chip>
+        </div>
+
+        @if (!metronomeState().isPlaying) {
+          <div style="background: rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 16px; margin-top: 16px; text-align: center; color: white;">
+            <div style="font-weight: 600; margin-bottom: 4px;">Esperando instrucciones</div>
+            <div style="font-size: 14px; opacity: 0.8;">El maestro iniciará el metrónomo en breve...</div>
+          </div>
+        }
+      </div>
+    </ion-card-content>
+  </ion-card>
+</ion-content>
