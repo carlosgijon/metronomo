@@ -54,6 +54,11 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "buildTarget": "frontend:build:development",
+            "port": 8100,
+            "host": "localhost"
+          },
           "configurations": {
             "production": {
               "buildTarget": "frontend:build:production"
