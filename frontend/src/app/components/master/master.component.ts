@@ -57,6 +57,11 @@ export class MasterComponent {
     { label: 'Beep', value: 'beep' },
     { label: 'Madera', value: 'wood' }
   ];
+  bpmMarks: Record<number, string> = {
+    40: '40',
+    120: '120',
+    240: '240'
+  };
 
   // Computed para saber cuántos beats tiene el compás
   beatsPerMeasure = computed(() => {
@@ -90,12 +95,13 @@ export class MasterComponent {
     this.metronomeService.setBpm(value);
   }
 
-  onTimeSignatureChange(timeSignature: string): void {
-    this.metronomeService.setTimeSignature(timeSignature);
+  onTimeSignatureChange(timeSignature: string | number): void {
+    this.metronomeService.setTimeSignature(String(timeSignature));
   }
 
-  onSoundTypeChange(soundType: 'click' | 'beep' | 'wood'): void {
-    this.metronomeService.setSoundType(soundType);
+  onSoundTypeChange(soundType: string | number): void {
+    const soundTypeStr = String(soundType) as 'click' | 'beep' | 'wood';
+    this.metronomeService.setSoundType(soundTypeStr);
   }
 
   onAccentFirstChange(accentFirst: boolean): void {
