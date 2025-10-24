@@ -43,7 +43,21 @@ cd frontend
 npm install
 ```
 
-### 2. Configurar Variables de Entorno
+### 2. Inicializar Capacitor (Solo la primera vez)
+
+Si es la primera vez que compilas, necesitas inicializar las plataformas nativas:
+
+```bash
+# Agregar plataforma Android
+npx cap add android
+
+# Agregar plataforma iOS (solo en macOS)
+npx cap add ios
+```
+
+**Nota:** Este paso solo se hace UNA VEZ. Después de esto, solo usarás `npx cap sync`.
+
+### 3. Configurar Variables de Entorno
 
 Edita `src/environments/environment.prod.ts` para configurar la IP del servidor:
 
@@ -53,15 +67,15 @@ const SERVER_IP = 'tu-servidor.com';  // O IP pública
 const SERVER_PORT = 3000;
 ```
 
-### 3. Build de Producción
+### 4. Build de Producción
 
 ```bash
 npm run build
 ```
 
-Este comando genera los archivos optimizados en `dist/frontend/`.
+Este comando genera los archivos optimizados en `dist/frontend/browser/`.
 
-### 4. Sincronizar con Capacitor
+### 5. Sincronizar con Capacitor
 
 ```bash
 npx cap sync
