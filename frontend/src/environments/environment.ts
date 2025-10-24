@@ -1,27 +1,9 @@
-// Detectar automáticamente el host del servidor
-const getServerUrl = () => {
-  if (typeof window !== 'undefined') {
-    const protocol = window.location.protocol === 'https:' ? 'https' : 'http';
-    const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-    const host = window.location.hostname;
-
-    return {
-      apiUrl: `${protocol}://${host}:3000/api`,
-      wsUrl: `${wsProtocol}://${host}:3000`
-    };
-  }
-
-  // Fallback para desarrollo local
-  return {
-    apiUrl: 'http://localhost:3000/api',
-    wsUrl: 'ws://localhost:3000'
-  };
-};
-
-const serverUrls = getServerUrl();
+// CONFIGURACIÓN: Cambia esta IP a la IP de tu servidor
+const SERVER_IP = 'localhost'; // Cambia esto por la IP de tu servidor (ej: '192.168.1.100' o 'miservidor.com')
+const SERVER_PORT = 3000;
 
 export const environment = {
   production: false,
-  apiUrl: serverUrls.apiUrl,
-  wsUrl: serverUrls.wsUrl
+  wsUrl: `ws://${SERVER_IP}:${SERVER_PORT}`,
+  apiUrl: `http://${SERVER_IP}:${SERVER_PORT}/api`
 };
