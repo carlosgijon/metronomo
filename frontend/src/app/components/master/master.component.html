@@ -1,114 +1,178 @@
 <ion-content [fullscreen]="true">
   <ion-card [class]="cardClasses()">
-    <ion-card-content style="height: 100%; display: flex; flex-direction: column; padding: 12px; overflow: hidden;">
+    <ion-card-content
+      style="height: 100%; display: flex; flex-direction: column; padding: 12px; overflow: hidden"
+    >
       <!-- Header con info del usuario y logout -->
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 8px;
+        "
+      >
         <div class="info-item">
           <ion-icon name="person"></ion-icon>
           <span>{{ user()?.name }}</span>
         </div>
-        <ion-button fill="clear" size="small" (click)="logout()" style="color: white;">
+        <ion-button fill="clear" size="small" (click)="logout()" style="color: white">
           <ion-icon name="log-out" slot="icon-only"></ion-icon>
         </ion-button>
       </div>
 
       <!-- BPM Display FINO Y PEQUEÑO arriba centro -->
-      <div style="flex: 0 0 auto; text-align: center; margin-bottom: 12px;">
+      <div style="flex: 0 0 auto; text-align: center; margin-bottom: 12px">
         <div class="bpm-display">{{ bpmInput() }}</div>
         <div class="bpm-label">BPM</div>
       </div>
 
       <!-- Info adicional: compás, sonido, acento -->
-      <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; justify-content: center;">
-        <ion-chip style="--background: rgba(255, 255, 255, 0.2); color: white; margin: 0;">
+      <div
+        style="
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+          margin-bottom: 12px;
+          justify-content: center;
+        "
+      >
+        <ion-chip style="--background: rgba(255, 255, 255, 0.2); color: white; margin: 0">
           <ion-label>{{ metronomeState().timeSignature }}</ion-label>
         </ion-chip>
-        <ion-chip style="--background: rgba(255, 255, 255, 0.2); color: white; margin: 0;">
+        <ion-chip style="--background: rgba(255, 255, 255, 0.2); color: white; margin: 0">
           <ion-label>
-            @switch (metronomeState().soundType) {
-              @case ('click') { Click }
-              @case ('beep') { Beep }
-              @case ('wood') { Madera }
-            }
+            @switch (metronomeState().soundType) { @case ('click') { Click } @case ('beep') { Beep }
+            @case ('wood') { Madera } }
           </ion-label>
         </ion-chip>
-        <ion-chip style="--background: rgba(255, 255, 255, 0.2); color: white; margin: 0;">
+        <ion-chip style="--background: rgba(255, 255, 255, 0.2); color: white; margin: 0">
           <ion-label>{{ metronomeState().accentFirst ? 'Acento ON' : 'Acento OFF' }}</ion-label>
         </ion-chip>
       </div>
 
       <!-- Área central: Número de tiempo grande y botón PLAY -->
-      <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; min-height: 0;">
+      <div
+        style="
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 20px;
+          min-height: 0;
+        "
+      >
         <!-- Número del tiempo actual ENORME -->
         @if (metronomeState().isPlaying) {
-          <div class="beat-number-display">
-            {{ metronomeState().currentBeat }}
-          </div>
+        <div class="beat-number-display">
+          {{ metronomeState().currentBeat }}
+        </div>
         }
 
         <!-- Botón PLAY/PAUSE GIGANTE -->
         <ion-button
           class="play-button"
-          [color]="metronomeState().isPlaying ? 'danger' : 'light'"
-          (click)="toggleMetronome()">
+          [color]="metronomeState().isPlaying ? 'dark' : 'light'"
+          (click)="toggleMetronome()"
+        >
           <ion-icon
             [name]="metronomeState().isPlaying ? 'pause' : 'play'"
             slot="icon-only"
-            style="font-size: 48px;">
+            style="font-size: 48px"
+          >
           </ion-icon>
         </ion-button>
       </div>
 
       <!-- Presets y controles abajo del todo -->
-      <div style="flex: 0 0 auto;">
+      <div style="flex: 0 0 auto">
         <!-- Slider de BPM -->
-        <div style="margin-bottom: 8px;">
+        <div style="margin-bottom: 8px">
           <ion-range
             [min]="40"
             [max]="240"
             [value]="bpmInput()"
             [pin]="true"
             (ionChange)="onBpmChange($event)"
-            style="--bar-background: rgba(255, 255, 255, 0.3); --bar-background-active: white; --knob-background: white;">
+            style="
+              --bar-background: rgba(255, 255, 255, 0.3);
+              --bar-background-active: white;
+              --knob-background: white;
+            "
+          >
           </ion-range>
         </div>
 
         <!-- Selector de Presets -->
-        <ion-item lines="none" style="--background: rgba(255, 255, 255, 0.1); --border-radius: 8px; --padding-start: 12px; --padding-end: 12px; --min-height: 40px; margin-bottom: 6px;">
-          <ion-label style="color: white; font-size: 14px;">Preset</ion-label>
+        <ion-item
+          lines="none"
+          style="
+            --background: rgba(255, 255, 255, 0.1);
+            --border-radius: 8px;
+            --padding-start: 12px;
+            --padding-end: 12px;
+            --min-height: 40px;
+            margin-bottom: 6px;
+          "
+        >
+          <ion-label style="color: white; font-size: 14px">Preset</ion-label>
           <ion-select
             slot="end"
             placeholder="Seleccionar..."
             (ionChange)="loadPreset($event)"
-            style="color: white; text-align: right;">
+            style="color: white; text-align: right"
+          >
             @for (preset of presets(); track preset.id) {
-              <ion-select-option [value]="preset.id!">{{ preset.name }}</ion-select-option>
+            <ion-select-option [value]="preset.id!">{{ preset.name }}</ion-select-option>
             }
           </ion-select>
         </ion-item>
 
         <!-- Compás -->
-        <ion-item lines="none" style="--background: rgba(255, 255, 255, 0.1); --border-radius: 8px; --padding-start: 12px; --padding-end: 12px; --min-height: 40px; margin-bottom: 6px;">
-          <ion-label style="color: white; font-size: 14px;">Compás</ion-label>
+        <ion-item
+          lines="none"
+          style="
+            --background: rgba(255, 255, 255, 0.1);
+            --border-radius: 8px;
+            --padding-start: 12px;
+            --padding-end: 12px;
+            --min-height: 40px;
+            margin-bottom: 6px;
+          "
+        >
+          <ion-label style="color: white; font-size: 14px">Compás</ion-label>
           <ion-select
             slot="end"
             [value]="metronomeState().timeSignature"
             (ionChange)="onTimeSignatureChange($event)"
-            style="color: white; text-align: right;">
+            style="color: white; text-align: right"
+          >
             @for (ts of timeSignatures; track ts) {
-              <ion-select-option [value]="ts">{{ ts }}</ion-select-option>
+            <ion-select-option [value]="ts">{{ ts }}</ion-select-option>
             }
           </ion-select>
         </ion-item>
 
         <!-- Sonido -->
-        <ion-item lines="none" style="--background: rgba(255, 255, 255, 0.1); --border-radius: 8px; --padding-start: 12px; --padding-end: 12px; --min-height: 40px; margin-bottom: 6px;">
-          <ion-label style="color: white; font-size: 14px;">Sonido</ion-label>
+        <ion-item
+          lines="none"
+          style="
+            --background: rgba(255, 255, 255, 0.1);
+            --border-radius: 8px;
+            --padding-start: 12px;
+            --padding-end: 12px;
+            --min-height: 40px;
+            margin-bottom: 6px;
+          "
+        >
+          <ion-label style="color: white; font-size: 14px">Sonido</ion-label>
           <ion-select
             slot="end"
             [value]="metronomeState().soundType"
             (ionChange)="onSoundTypeChange($event)"
-            style="color: white; text-align: right;">
+            style="color: white; text-align: right"
+          >
             <ion-select-option value="click">Click</ion-select-option>
             <ion-select-option value="beep">Beep</ion-select-option>
             <ion-select-option value="wood">Madera</ion-select-option>
@@ -116,12 +180,22 @@
         </ion-item>
 
         <!-- Acento primer tiempo -->
-        <ion-item lines="none" style="--background: rgba(255, 255, 255, 0.1); --border-radius: 8px; --padding-start: 12px; --padding-end: 12px; --min-height: 40px;">
-          <ion-label style="color: white; font-size: 14px;">Acento 1er tiempo</ion-label>
+        <ion-item
+          lines="none"
+          style="
+            --background: rgba(255, 255, 255, 0.1);
+            --border-radius: 8px;
+            --padding-start: 12px;
+            --padding-end: 12px;
+            --min-height: 40px;
+          "
+        >
+          <ion-label style="color: white; font-size: 14px">Acento 1er tiempo</ion-label>
           <ion-toggle
             [checked]="metronomeState().accentFirst"
             (ionChange)="onAccentFirstChange($event)"
-            slot="end">
+            slot="end"
+          >
           </ion-toggle>
         </ion-item>
       </div>

@@ -1,5 +1,15 @@
 <ion-content [fullscreen]="true">
-  <div class="ion-padding" style="height: 100%; display: flex; flex-direction: column; justify-content: center; max-width: 500px; margin: 0 auto;">
+  <div
+    class="ion-padding"
+    style="
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      max-width: 500px;
+      margin: 0 auto;
+    "
+  >
     <ion-card>
       <ion-card-content>
         <!-- Logo y título -->
@@ -11,11 +21,11 @@
 
         <!-- Error message -->
         @if (errorMessage()) {
-          <ion-item color="danger" lines="none" class="ion-margin-bottom">
-            <ion-label class="ion-text-wrap">
-              {{ errorMessage() }}
-            </ion-label>
-          </ion-item>
+        <ion-item color="danger" lines="none" class="ion-margin-bottom">
+          <ion-label class="ion-text-wrap">
+            {{ errorMessage() }}
+          </ion-label>
+        </ion-item>
         }
 
         <!-- Formulario -->
@@ -30,7 +40,8 @@
                 [(ngModel)]="name"
                 name="name"
                 [disabled]="isLoading()"
-                required>
+                required
+              >
               </ion-input>
             </ion-item>
           </ion-list>
@@ -69,17 +80,11 @@
           </div>
 
           <!-- Botón de submit -->
-          <ion-button
-            expand="block"
-            type="submit"
-            [disabled]="isLoading()"
-            class="ion-margin-top">
+          <ion-button expand="block" type="submit" [disabled]="isLoading()" class="ion-margin-top">
             @if (isLoading()) {
-              <ion-spinner name="crescent"></ion-spinner>
-              <span class="ion-margin-start">Conectando...</span>
-            } @else {
-              Conectar
-            }
+            <ion-spinner name="crescent"></ion-spinner>
+            <span class="ion-margin-start">Conectando...</span>
+            } @else { Conectar }
           </ion-button>
         </form>
       </ion-card-content>
