@@ -12,6 +12,7 @@ import {
   IonInput,
   IonItem,
   IonLabel,
+  IonList,
   IonRadioGroup,
   IonRadio,
   IonSpinner
@@ -33,6 +34,7 @@ import { musicalNotes, person, people, settings } from 'ionicons/icons';
     IonInput,
     IonItem,
     IonLabel,
+    IonList,
     IonRadioGroup,
     IonRadio,
     IonSpinner

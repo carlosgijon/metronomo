@@ -5,11 +5,66 @@ import { Router } from '@angular/router';
 import { PresetService } from '../../services/preset.service';
 import { AuthService } from '../../services/auth.service';
 import { Preset } from '../../models/preset.model';
+import {
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonContent,
+  IonFab,
+  IonFabButton,
+  IonIcon,
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardSubtitle,
+  IonCardContent,
+  IonButton,
+  IonButtons,
+  IonModal,
+  IonList,
+  IonItem,
+  IonLabel,
+  IonInput,
+  IonSelect,
+  IonSelectOption,
+  IonToggle,
+  IonRange,
+  IonChip
+} from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import { add, pencil, trash, person, logOut, close } from 'ionicons/icons';
 
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
+    IonFab,
+    IonFabButton,
+    IonIcon,
+    IonCard,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardSubtitle,
+    IonCardContent,
+    IonButton,
+    IonButtons,
+    IonModal,
+    IonList,
+    IonItem,
+    IonLabel,
+    IonInput,
+    IonSelect,
+    IonSelectOption,
+    IonToggle,
+    IonRange,
+    IonChip
+  ],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.css'
 })
@@ -34,6 +89,10 @@ export class AdminComponent {
 
   timeSignatures = ['2/4', '3/4', '4/4', '5/4', '6/8', '7/8', '9/8', '12/8'];
   soundTypes: Array<'click' | 'beep' | 'wood'> = ['click', 'beep', 'wood'];
+
+  constructor() {
+    addIcons({ add, pencil, trash, person, logOut, close });
+  }
 
   openCreateModal(): void {
     this.resetForm();

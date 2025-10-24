@@ -1,192 +1,166 @@
-<div class="min-h-screen bg-base-200 p-4">
-  <!-- Header -->
-  <div class="navbar bg-base-100 rounded-box shadow-lg mb-4">
-    <div class="flex-1">
-      <h1 class="text-xl font-bold ml-4">Panel Administrativo</h1>
-    </div>
-    <div class="flex-none gap-2">
-      <div class="badge badge-primary">{{ user()?.name }}</div>
-      <button class="btn btn-ghost btn-sm" (click)="logout()">Salir</button>
-    </div>
-  </div>
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Panel Administrativo</ion-title>
+    <ion-buttons slot="end">
+      <ion-chip>
+        <ion-icon name="person"></ion-icon>
+        <ion-label>{{ user()?.name }}</ion-label>
+      </ion-chip>
+      <ion-button (click)="logout()">
+        <ion-icon name="log-out" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
 
-  <!-- Contenido principal -->
-  <div class="card bg-base-100 shadow-xl">
-    <div class="card-body">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="card-title">Gestión de Presets</h2>
-        <button class="btn btn-primary" (click)="openCreateModal()">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-          </svg>
-          Nuevo Preset
-        </button>
-      </div>
+<ion-content class="ion-padding">
+  <h2>Gestión de Presets</h2>
 
-      <!-- Tabla de presets -->
-      <div class="overflow-x-auto">
-        <table class="table table-zebra">
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>BPM</th>
-              <th>Compás</th>
-              <th>Sonido</th>
-              <th>Acentuación</th>
-              <th class="text-right">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            @if (presets().length === 0) {
-              <tr>
-                <td colspan="6" class="text-center py-8 opacity-50">
-                  No hay presets. Crea uno para empezar.
-                </td>
-              </tr>
+  <!-- Lista de presets como cards -->
+  @if (presets().length === 0) {
+    <ion-card>
+      <ion-card-content class="ion-text-center">
+        <p>No hay presets. Crea uno para empezar.</p>
+      </ion-card-content>
+    </ion-card>
+  } @else {
+    @for (preset of presets(); track preset.id) {
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>{{ preset.name }}</ion-card-title>
+          <ion-card-subtitle>{{ preset.bpm }} BPM • {{ preset.timeSignature }}</ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;">
+            <ion-chip>
+              <ion-label>
+                @switch (preset.soundType) {
+                  @case ('click') { Click }
+                  @case ('beep') { Beep }
+                  @case ('wood') { Madera }
+                }
+              </ion-label>
+            </ion-chip>
+            @if (preset.accentFirst) {
+              <ion-chip color="success">
+                <ion-label>Acento</ion-label>
+              </ion-chip>
             }
-            @for (preset of presets(); track preset.id) {
-              <tr>
-                <td class="font-semibold">{{ preset.name }}</td>
-                <td>{{ preset.bpm }}</td>
-                <td>{{ preset.timeSignature }}</td>
-                <td>
-                  <div class="badge badge-ghost">
-                    @switch (preset.soundType) {
-                      @case ('click') { Click }
-                      @case ('beep') { Beep }
-                      @case ('wood') { Madera }
-                    }
-                  </div>
-                </td>
-                <td>
-                  @if (preset.accentFirst) {
-                    <div class="badge badge-success">Sí</div>
-                  } @else {
-                    <div class="badge badge-ghost">No</div>
-                  }
-                </td>
-                <td>
-                  <div class="flex justify-end gap-2">
-                    <button
-                      class="btn btn-sm btn-ghost"
-                      (click)="openEditModal(preset)"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
-                    </button>
-                    <button
-                      class="btn btn-sm btn-ghost text-error"
-                      (click)="deletePreset(preset)"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
+          </div>
+          <div style="display: flex; gap: 8px; justify-content: flex-end;">
+            <ion-button fill="outline" size="small" (click)="openEditModal(preset)">
+              <ion-icon name="pencil" slot="start"></ion-icon>
+              Editar
+            </ion-button>
+            <ion-button fill="outline" size="small" color="danger" (click)="deletePreset(preset)">
+              <ion-icon name="trash" slot="start"></ion-icon>
+              Eliminar
+            </ion-button>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    }
+  }
+
+  <!-- Botón flotante para crear preset -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button (click)="openCreateModal()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>
 
 <!-- Modal para crear/editar preset -->
-@if (isCreating() || isEditing()) {
-  <div class="modal modal-open">
-    <div class="modal-box">
-      <h3 class="font-bold text-lg mb-4">
-        {{ isEditing() ? 'Editar Preset' : 'Nuevo Preset' }}
-      </h3>
+<ion-modal [isOpen]="isCreating() || isEditing()" (didDismiss)="closeModal()">
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>{{ isEditing() ? 'Editar Preset' : 'Nuevo Preset' }}</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="closeModal()">
+            <ion-icon name="close" slot="icon-only"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content class="ion-padding">
+      <form (ngSubmit)="savePreset()">
+        <ion-list>
+          <!-- Nombre -->
+          <ion-item>
+            <ion-input
+              label="Nombre"
+              label-placement="floating"
+              type="text"
+              placeholder="Ej: Rock básico"
+              [(ngModel)]="formName"
+              name="name"
+              required>
+            </ion-input>
+          </ion-item>
 
-      <form (ngSubmit)="savePreset()" class="space-y-4">
-        <!-- Nombre -->
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text">Nombre</span>
-          </label>
-          <input
-            type="text"
-            placeholder="Ej: Rock básico"
-            class="input input-bordered"
-            [(ngModel)]="formName"
-            name="name"
-            required
-          />
-        </div>
+          <!-- BPM -->
+          <ion-item>
+            <ion-label>BPM: {{ formBpm() }}</ion-label>
+          </ion-item>
+          <ion-item lines="none">
+            <ion-range
+              [min]="40"
+              [max]="240"
+              [value]="formBpm()"
+              [pin]="true"
+              (ionChange)="formBpm.set($any($event.detail.value))"
+              color="primary">
+            </ion-range>
+          </ion-item>
 
-        <!-- BPM -->
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text">BPM: {{ formBpm() }}</span>
-          </label>
-          <input
-            type="range"
-            min="40"
-            max="240"
-            [value]="formBpm()"
-            (input)="formBpm.set(+$any($event.target).value)"
-            class="range range-primary"
-            step="1"
-          />
-        </div>
+          <!-- Compás -->
+          <ion-item>
+            <ion-label>Compás</ion-label>
+            <ion-select
+              slot="end"
+              [value]="formTimeSignature()"
+              (ionChange)="formTimeSignature.set($any($event.detail.value))">
+              @for (ts of timeSignatures; track ts) {
+                <ion-select-option [value]="ts">{{ ts }}</ion-select-option>
+              }
+            </ion-select>
+          </ion-item>
 
-        <!-- Compás -->
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text">Compás</span>
-          </label>
-          <select
-            class="select select-bordered"
-            [value]="formTimeSignature()"
-            (change)="formTimeSignature.set($any($event.target).value)"
-          >
-            @for (ts of timeSignatures; track ts) {
-              <option [value]="ts">{{ ts }}</option>
-            }
-          </select>
-        </div>
+          <!-- Sonido -->
+          <ion-item>
+            <ion-label>Tipo de sonido</ion-label>
+            <ion-select
+              slot="end"
+              [value]="formSoundType()"
+              (ionChange)="formSoundType.set($any($event.detail.value))">
+              <ion-select-option value="click">Click</ion-select-option>
+              <ion-select-option value="beep">Beep</ion-select-option>
+              <ion-select-option value="wood">Madera</ion-select-option>
+            </ion-select>
+          </ion-item>
 
-        <!-- Sonido -->
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text">Tipo de sonido</span>
-          </label>
-          <select
-            class="select select-bordered"
-            [value]="formSoundType()"
-            (change)="formSoundType.set($any($event.target).value)"
-          >
-            <option value="click">Click</option>
-            <option value="beep">Beep</option>
-            <option value="wood">Madera</option>
-          </select>
-        </div>
-
-        <!-- Acentuar primer tiempo -->
-        <div class="form-control">
-          <label class="label cursor-pointer">
-            <span class="label-text">Acentuar primer tiempo</span>
-            <input
-              type="checkbox"
-              class="toggle toggle-primary"
+          <!-- Acentuar primer tiempo -->
+          <ion-item>
+            <ion-label>Acentuar primer tiempo</ion-label>
+            <ion-toggle
+              slot="end"
               [checked]="formAccentFirst()"
-              (change)="formAccentFirst.set($any($event.target).checked)"
-            />
-          </label>
-        </div>
+              (ionChange)="formAccentFirst.set($any($event.detail.checked))">
+            </ion-toggle>
+          </ion-item>
+        </ion-list>
 
         <!-- Botones -->
-        <div class="modal-action">
-          <button type="button" class="btn" (click)="closeModal()">Cancelar</button>
-          <button type="submit" class="btn btn-primary">
+        <div class="ion-padding-top">
+          <ion-button expand="block" type="submit" color="primary">
             {{ isEditing() ? 'Guardar' : 'Crear' }}
-          </button>
+          </ion-button>
+          <ion-button expand="block" fill="outline" type="button" (click)="closeModal()">
+            Cancelar
+          </ion-button>
         </div>
       </form>
-    </div>
-  </div>
-}
+    </ion-content>
+  </ng-template>
+</ion-modal>

@@ -77,9 +77,10 @@
         <ion-item lines="none" style="--background: rgba(255, 255, 255, 0.1); --border-radius: 8px; --padding-start: 12px; --padding-end: 12px; --min-height: 40px; margin-bottom: 6px;">
           <ion-label style="color: white; font-size: 14px;">Preset</ion-label>
           <ion-select
+            slot="end"
             placeholder="Seleccionar..."
             (ionChange)="loadPreset($event)"
-            style="color: white; max-width: 60%;">
+            style="color: white; text-align: right;">
             @for (preset of presets(); track preset.id) {
               <ion-select-option [value]="preset.id!">{{ preset.name }}</ion-select-option>
             }
@@ -90,9 +91,10 @@
         <ion-item lines="none" style="--background: rgba(255, 255, 255, 0.1); --border-radius: 8px; --padding-start: 12px; --padding-end: 12px; --min-height: 40px; margin-bottom: 6px;">
           <ion-label style="color: white; font-size: 14px;">Compás</ion-label>
           <ion-select
+            slot="end"
             [value]="metronomeState().timeSignature"
             (ionChange)="onTimeSignatureChange($event)"
-            style="color: white; max-width: 30%;">
+            style="color: white; text-align: right;">
             @for (ts of timeSignatures; track ts) {
               <ion-select-option [value]="ts">{{ ts }}</ion-select-option>
             }
@@ -103,9 +105,10 @@
         <ion-item lines="none" style="--background: rgba(255, 255, 255, 0.1); --border-radius: 8px; --padding-start: 12px; --padding-end: 12px; --min-height: 40px; margin-bottom: 6px;">
           <ion-label style="color: white; font-size: 14px;">Sonido</ion-label>
           <ion-select
+            slot="end"
             [value]="metronomeState().soundType"
             (ionChange)="onSoundTypeChange($event)"
-            style="color: white; max-width: 40%;">
+            style="color: white; text-align: right;">
             <ion-select-option value="click">Click</ion-select-option>
             <ion-select-option value="beep">Beep</ion-select-option>
             <ion-select-option value="wood">Madera</ion-select-option>

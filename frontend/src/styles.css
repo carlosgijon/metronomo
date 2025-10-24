@@ -49,9 +49,9 @@
 
 /* Display del número de tiempo grande */
 .beat-number-display {
-  font-size: 140px;
+  font-size: 180px;
   font-weight: 100;
-  letter-spacing: -8px;
+  letter-spacing: -10px;
   color: white;
   text-align: center;
   margin: 0;
@@ -60,9 +60,9 @@
 }
 
 .bpm-display {
-  font-size: 48px;
+  font-size: 36px;
   font-weight: 100;
-  letter-spacing: -2px;
+  letter-spacing: -1px;
   color: white;
   text-align: center;
   margin: 0;
@@ -70,12 +70,12 @@
 }
 
 .bpm-label {
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 300;
   letter-spacing: 2px;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.6);
   text-align: center;
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
 .play-button {
