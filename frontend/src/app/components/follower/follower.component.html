@@ -1,8 +1,8 @@
 <ion-content [fullscreen]="true">
   <ion-card [class]="cardClasses()">
-    <ion-card-content style="height: 100%; display: flex; flex-direction: column; padding: 20px;">
+    <ion-card-content style="height: 100%; display: flex; flex-direction: column; padding: 12px; overflow: hidden;">
       <!-- Header con info del usuario y logout -->
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
         <div class="info-item">
           <ion-icon name="person"></ion-icon>
           <span>{{ user()?.name }} (Seguidor)</span>
@@ -12,67 +12,62 @@
         </ion-button>
       </div>
 
-      <!-- Estado del metrónomo -->
-      <div style="margin-bottom: 24px;">
+      <!-- BPM Display FINO Y PEQUEÑO arriba centro -->
+      <div style="flex: 0 0 auto; text-align: center; margin-bottom: 8px;">
+        <div class="bpm-display">{{ metronomeState().bpm }}</div>
+        <div class="bpm-label">BPM</div>
+      </div>
+
+      <!-- Estado del metrónomo e info -->
+      <div style="margin-bottom: 12px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; align-items: center;">
         @if (metronomeState().isPlaying) {
-          <ion-badge color="success" style="padding: 8px 16px; font-size: 14px;">
+          <ion-badge color="success" style="font-size: 12px;">
             <ion-icon name="checkmark-circle"></ion-icon>
             Reproduciendo
           </ion-badge>
         } @else {
-          <ion-badge color="medium" style="padding: 8px 16px; font-size: 14px;">
+          <ion-badge color="medium" style="font-size: 12px;">
             <ion-icon name="close-circle"></ion-icon>
             En espera...
           </ion-badge>
         }
-      </div>
-
-      <!-- BPM Display GRANDE Y FINO arriba centro -->
-      <div style="flex: 0 0 auto; text-align: center; margin-bottom: 32px;">
-        <div class="bpm-display">{{ metronomeState().bpm }}</div>
-        <div class="bpm-label">BPM</div>
-        <div style="color: rgba(255, 255, 255, 0.8); font-size: 28px; font-weight: 300; margin-top: 12px;">
-          {{ metronomeState().timeSignature }}
-        </div>
+        <ion-chip style="--background: rgba(255, 255, 255, 0.2); color: white; margin: 0;">
+          <ion-label style="font-size: 14px;">{{ metronomeState().timeSignature }}</ion-label>
+        </ion-chip>
+        <ion-chip style="--background: rgba(255, 255, 255, 0.2); color: white; margin: 0;">
+          <ion-label style="font-size: 14px;">
+            @switch (metronomeState().soundType) {
+              @case ('click') { Click }
+              @case ('beep') { Beep }
+              @case ('wood') { Madera }
+            }
+          </ion-label>
+        </ion-chip>
+        <ion-chip style="--background: rgba(255, 255, 255, 0.2); color: white; margin: 0;">
+          <ion-label style="font-size: 14px;">{{ metronomeState().accentFirst ? 'Acento' : 'Sin acento' }}</ion-label>
+        </ion-chip>
       </div>
 
       <!-- Área central: Número del tiempo actual ENORME -->
-      <div style="flex: 1; display: flex; align-items: center; justify-content: center;">
+      <div style="flex: 1; display: flex; align-items: center; justify-content: center; min-height: 0;">
         @if (metronomeState().isPlaying) {
           <div class="beat-number-display">
             {{ metronomeState().currentBeat }}
           </div>
         } @else {
-          <div style="color: rgba(255, 255, 255, 0.5); font-size: 48px; text-align: center;">
+          <div style="color: rgba(255, 255, 255, 0.5); font-size: 36px; text-align: center;">
             Esperando...
           </div>
         }
       </div>
 
       <!-- Info adicional abajo -->
-      <div style="flex: 0 0 auto;">
-        <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;">
-          <ion-chip style="--background: rgba(255, 255, 255, 0.2); color: white;">
-            <ion-label>
-              @switch (metronomeState().soundType) {
-                @case ('click') { Click }
-                @case ('beep') { Beep }
-                @case ('wood') { Madera }
-              }
-            </ion-label>
-          </ion-chip>
-          <ion-chip style="--background: rgba(255, 255, 255, 0.2); color: white;">
-            <ion-label>{{ metronomeState().accentFirst ? 'Acento ON' : 'Acento OFF' }}</ion-label>
-          </ion-chip>
+      @if (!metronomeState().isPlaying) {
+        <div style="flex: 0 0 auto; background: rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 12px; text-align: center; color: white;">
+          <div style="font-weight: 600; font-size: 14px; margin-bottom: 4px;">Esperando instrucciones</div>
+          <div style="font-size: 12px; opacity: 0.8;">El maestro iniciará el metrónomo en breve...</div>
         </div>
-
-        @if (!metronomeState().isPlaying) {
-          <div style="background: rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 16px; margin-top: 16px; text-align: center; color: white;">
-            <div style="font-weight: 600; margin-bottom: 4px;">Esperando instrucciones</div>
-            <div style="font-size: 14px; opacity: 0.8;">El maestro iniciará el metrónomo en breve...</div>
-          </div>
-        }
-      </div>
+      }
     </ion-card-content>
   </ion-card>
 </ion-content>

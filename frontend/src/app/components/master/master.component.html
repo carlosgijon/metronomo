@@ -1,8 +1,8 @@
 <ion-content [fullscreen]="true">
   <ion-card [class]="cardClasses()">
-    <ion-card-content style="height: 100%; display: flex; flex-direction: column; padding: 20px;">
+    <ion-card-content style="height: 100%; display: flex; flex-direction: column; padding: 12px; overflow: hidden;">
       <!-- Header con info del usuario y logout -->
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
         <div class="info-item">
           <ion-icon name="person"></ion-icon>
           <span>{{ user()?.name }}</span>
@@ -12,12 +12,18 @@
         </ion-button>
       </div>
 
+      <!-- BPM Display FINO Y PEQUEÑO arriba centro -->
+      <div style="flex: 0 0 auto; text-align: center; margin-bottom: 12px;">
+        <div class="bpm-display">{{ bpmInput() }}</div>
+        <div class="bpm-label">BPM</div>
+      </div>
+
       <!-- Info adicional: compás, sonido, acento -->
-      <div style="display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px;">
-        <ion-chip style="--background: rgba(255, 255, 255, 0.2); color: white;">
+      <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; justify-content: center;">
+        <ion-chip style="--background: rgba(255, 255, 255, 0.2); color: white; margin: 0;">
           <ion-label>{{ metronomeState().timeSignature }}</ion-label>
         </ion-chip>
-        <ion-chip style="--background: rgba(255, 255, 255, 0.2); color: white;">
+        <ion-chip style="--background: rgba(255, 255, 255, 0.2); color: white; margin: 0;">
           <ion-label>
             @switch (metronomeState().soundType) {
               @case ('click') { Click }
@@ -26,19 +32,13 @@
             }
           </ion-label>
         </ion-chip>
-        <ion-chip style="--background: rgba(255, 255, 255, 0.2); color: white;">
+        <ion-chip style="--background: rgba(255, 255, 255, 0.2); color: white; margin: 0;">
           <ion-label>{{ metronomeState().accentFirst ? 'Acento ON' : 'Acento OFF' }}</ion-label>
         </ion-chip>
       </div>
 
-      <!-- BPM Display GRANDE Y FINO arriba centro -->
-      <div style="flex: 0 0 auto; text-align: center; margin-bottom: 32px;">
-        <div class="bpm-display">{{ bpmInput() }}</div>
-        <div class="bpm-label">BPM</div>
-      </div>
-
       <!-- Área central: Número de tiempo grande y botón PLAY -->
-      <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 48px;">
+      <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; min-height: 0;">
         <!-- Número del tiempo actual ENORME -->
         @if (metronomeState().isPlaying) {
           <div class="beat-number-display">
@@ -54,7 +54,7 @@
           <ion-icon
             [name]="metronomeState().isPlaying ? 'pause' : 'play'"
             slot="icon-only"
-            style="font-size: 64px;">
+            style="font-size: 48px;">
           </ion-icon>
         </ion-button>
       </div>
@@ -62,7 +62,7 @@
       <!-- Presets y controles abajo del todo -->
       <div style="flex: 0 0 auto;">
         <!-- Slider de BPM -->
-        <div style="margin-bottom: 16px;">
+        <div style="margin-bottom: 8px;">
           <ion-range
             [min]="40"
             [max]="240"
@@ -74,8 +74,8 @@
         </div>
 
         <!-- Selector de Presets -->
-        <ion-item lines="none" style="--background: rgba(255, 255, 255, 0.1); --border-radius: 12px; margin-bottom: 12px;">
-          <ion-label style="color: white;">Preset</ion-label>
+        <ion-item lines="none" style="--background: rgba(255, 255, 255, 0.1); --border-radius: 8px; --padding-start: 12px; --padding-end: 12px; --min-height: 40px; margin-bottom: 6px;">
+          <ion-label style="color: white; font-size: 14px;">Preset</ion-label>
           <ion-select
             placeholder="Seleccionar..."
             (ionChange)="loadPreset($event)"
@@ -87,8 +87,8 @@
         </ion-item>
 
         <!-- Compás -->
-        <ion-item lines="none" style="--background: rgba(255, 255, 255, 0.1); --border-radius: 12px; margin-bottom: 12px;">
-          <ion-label style="color: white;">Compás</ion-label>
+        <ion-item lines="none" style="--background: rgba(255, 255, 255, 0.1); --border-radius: 8px; --padding-start: 12px; --padding-end: 12px; --min-height: 40px; margin-bottom: 6px;">
+          <ion-label style="color: white; font-size: 14px;">Compás</ion-label>
           <ion-select
             [value]="metronomeState().timeSignature"
             (ionChange)="onTimeSignatureChange($event)"
@@ -100,8 +100,8 @@
         </ion-item>
 
         <!-- Sonido -->
-        <ion-item lines="none" style="--background: rgba(255, 255, 255, 0.1); --border-radius: 12px; margin-bottom: 12px;">
-          <ion-label style="color: white;">Sonido</ion-label>
+        <ion-item lines="none" style="--background: rgba(255, 255, 255, 0.1); --border-radius: 8px; --padding-start: 12px; --padding-end: 12px; --min-height: 40px; margin-bottom: 6px;">
+          <ion-label style="color: white; font-size: 14px;">Sonido</ion-label>
           <ion-select
             [value]="metronomeState().soundType"
             (ionChange)="onSoundTypeChange($event)"
@@ -113,8 +113,8 @@
         </ion-item>
 
         <!-- Acento primer tiempo -->
-        <ion-item lines="none" style="--background: rgba(255, 255, 255, 0.1); --border-radius: 12px;">
-          <ion-label style="color: white;">Acentuar primer tiempo</ion-label>
+        <ion-item lines="none" style="--background: rgba(255, 255, 255, 0.1); --border-radius: 8px; --padding-start: 12px; --padding-end: 12px; --min-height: 40px;">
+          <ion-label style="color: white; font-size: 14px;">Acento 1er tiempo</ion-label>
           <ion-toggle
             [checked]="metronomeState().accentFirst"
             (ionChange)="onAccentFirstChange($event)"

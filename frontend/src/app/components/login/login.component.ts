@@ -14,8 +14,7 @@ import {
   IonLabel,
   IonRadioGroup,
   IonRadio,
-  IonSpinner,
-  IonText
+  IonSpinner
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { musicalNotes, person, people, settings } from 'ionicons/icons';
@@ -36,8 +35,7 @@ import { musicalNotes, person, people, settings } from 'ionicons/icons';
     IonLabel,
     IonRadioGroup,
     IonRadio,
-    IonSpinner,
-    IonText
+    IonSpinner
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'

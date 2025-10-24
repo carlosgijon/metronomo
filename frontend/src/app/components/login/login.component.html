@@ -1,27 +1,27 @@
 <ion-content [fullscreen]="true">
-  <div style="height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px;">
-    <ion-card style="max-width: 400px; width: 100%; --background: rgba(255, 255, 255, 0.95);">
-      <ion-card-content style="padding: 32px;">
-        <!-- Logo -->
-        <div style="text-align: center; margin-bottom: 32px;">
-          <ion-icon name="musical-notes" style="font-size: 64px; color: #667eea;"></ion-icon>
-          <h1 style="margin: 16px 0 8px; font-size: 32px; font-weight: 700; color: #333;">Metrónomo</h1>
-          <p style="color: #666; margin: 0;">Sincroniza el tempo de tu banda</p>
+  <div class="ion-padding" style="height: 100%; display: flex; flex-direction: column; justify-content: center; max-width: 500px; margin: 0 auto;">
+    <ion-card>
+      <ion-card-content>
+        <!-- Logo y título -->
+        <div class="ion-text-center ion-margin-bottom">
+          <ion-icon name="musical-notes" size="large" color="primary"></ion-icon>
+          <h1>Metrónomo Sincronizado</h1>
+          <p>Sincroniza el tempo de tu banda</p>
         </div>
 
         <!-- Error message -->
         @if (errorMessage()) {
-          <div style="background: #fee; border-left: 4px solid #f44; padding: 12px; margin-bottom: 20px; border-radius: 4px;">
-            <ion-text color="danger">
-              <p style="margin: 0; color: #c33;">{{ errorMessage() }}</p>
-            </ion-text>
-          </div>
+          <ion-item color="danger" lines="none" class="ion-margin-bottom">
+            <ion-label class="ion-text-wrap">
+              {{ errorMessage() }}
+            </ion-label>
+          </ion-item>
         }
 
         <!-- Formulario -->
         <form (ngSubmit)="onLogin()">
           <!-- Nombre -->
-          <ion-item lines="none" style="--background: #f5f5f5; --border-radius: 8px; margin-bottom: 20px;">
+          <ion-item>
             <ion-label position="floating">Tu Nombre</ion-label>
             <ion-input
               type="text"
@@ -33,32 +33,32 @@
           </ion-item>
 
           <!-- Rol -->
-          <div style="margin-bottom: 24px;">
-            <ion-label style="display: block; margin-bottom: 12px; font-weight: 600; color: #333;">Selecciona tu rol</ion-label>
+          <div class="ion-margin-top">
+            <ion-label>Selecciona tu rol</ion-label>
             <ion-radio-group [value]="selectedRole()" (ionChange)="selectRole($event.detail.value)">
-              <ion-item lines="none" style="--background: #f5f5f5; --border-radius: 8px; margin-bottom: 8px; cursor: pointer;">
-                <ion-icon name="person" slot="start" style="color: #667eea;"></ion-icon>
+              <ion-item>
+                <ion-icon name="person" slot="start" color="primary"></ion-icon>
                 <ion-label>
-                  <h2 style="font-weight: 600;">Maestro</h2>
-                  <p style="font-size: 14px; color: #666;">Controlar el metrónomo</p>
+                  <h2>Maestro</h2>
+                  <p>Controlar el metrónomo</p>
                 </ion-label>
                 <ion-radio slot="end" [value]="UserRole.MASTER"></ion-radio>
               </ion-item>
 
-              <ion-item lines="none" style="--background: #f5f5f5; --border-radius: 8px; margin-bottom: 8px; cursor: pointer;">
-                <ion-icon name="people" slot="start" style="color: #667eea;"></ion-icon>
+              <ion-item>
+                <ion-icon name="people" slot="start" color="primary"></ion-icon>
                 <ion-label>
-                  <h2 style="font-weight: 600;">Seguidor</h2>
-                  <p style="font-size: 14px; color: #666;">Escuchar el metrónomo</p>
+                  <h2>Seguidor</h2>
+                  <p>Escuchar el metrónomo</p>
                 </ion-label>
                 <ion-radio slot="end" [value]="UserRole.FOLLOWER"></ion-radio>
               </ion-item>
 
-              <ion-item lines="none" style="--background: #f5f5f5; --border-radius: 8px; cursor: pointer;">
-                <ion-icon name="settings" slot="start" style="color: #667eea;"></ion-icon>
+              <ion-item>
+                <ion-icon name="settings" slot="start" color="primary"></ion-icon>
                 <ion-label>
-                  <h2 style="font-weight: 600;">Admin</h2>
-                  <p style="font-size: 14px; color: #666;">Gestionar presets</p>
+                  <h2>Admin</h2>
+                  <p>Gestionar presets</p>
                 </ion-label>
                 <ion-radio slot="end" [value]="UserRole.ADMIN"></ion-radio>
               </ion-item>
@@ -70,22 +70,15 @@
             expand="block"
             type="submit"
             [disabled]="isLoading()"
-            style="--background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); height: 56px; font-size: 18px; font-weight: 600;">
+            class="ion-margin-top">
             @if (isLoading()) {
-              <ion-spinner name="crescent" style="margin-right: 8px;"></ion-spinner>
-              Conectando...
+              <ion-spinner name="crescent"></ion-spinner>
+              <span class="ion-margin-start">Conectando...</span>
             } @else {
               Conectar
             }
           </ion-button>
         </form>
-
-        <!-- Info footer -->
-        <div style="text-align: center; margin-top: 24px; padding-top: 24px; border-top: 1px solid #e0e0e0;">
-          <p style="color: #999; font-size: 14px; margin: 0;">
-            Conecta y sincroniza el tempo perfectamente
-          </p>
-        </div>
       </ion-card-content>
     </ion-card>
   </div>
