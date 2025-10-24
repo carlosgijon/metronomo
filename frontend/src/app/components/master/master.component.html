@@ -63,12 +63,10 @@
           min-height: 0;
         "
       >
-        <!-- Número del tiempo actual ENORME -->
-        @if (metronomeState().isPlaying) {
-        <div class="beat-number-display">
-          {{ metronomeState().currentBeat }}
+        <!-- Número del tiempo actual ENORME (siempre reserva espacio) -->
+        <div class="beat-number-display" [style.visibility]="metronomeState().isPlaying ? 'visible' : 'hidden'">
+          {{ metronomeState().isPlaying ? metronomeState().currentBeat : '0' }}
         </div>
-        }
 
         <!-- Botón PLAY/PAUSE GIGANTE -->
         <ion-button

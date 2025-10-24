@@ -27,6 +27,18 @@
   --ion-color-primary-tint: #4c8dff;
 }
 
+/* Sobrescribir colores de inputs - cambiar de verde a azul */
+ion-item {
+  --highlight-color-focused: #3880ff;
+  --highlight-color-valid: #3880ff;
+  --highlight-color-invalid: var(--ion-color-danger);
+}
+
+ion-input {
+  --highlight-color-focused: #3880ff;
+  --highlight-color-valid: #3880ff;
+}
+
 /* Custom styles for metronome */
 .metronome-fullscreen-card {
   height: 100vh;
