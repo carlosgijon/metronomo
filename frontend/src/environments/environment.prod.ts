@@ -1,5 +1,18 @@
-// Detección automática del servidor según el contexto (PRODUCCIÓN)
+import { Capacitor } from '@capacitor/core';
+
+// Configuración del servidor para apps nativas (Android/iOS)
+// IMPORTANTE: Cambia estas IPs según donde esté tu servidor
 const getServerIP = (): string => {
+  // Detectar si está corriendo como app nativa
+  const isNative = Capacitor.isNativePlatform();
+
+  if (isNative) {
+    // APP NATIVA (Android/iOS)
+    // El móvil se conecta a la IP del servidor en la red móvil
+    return '192.168.50.1';
+  }
+
+  // WEB (Navegador)
   if (typeof window === 'undefined') {
     return 'localhost';
   }
@@ -37,3 +50,8 @@ export const environment = {
   wsUrl: `${wsProtocol}://${SERVER_IP}:${SERVER_PORT}`,
   apiUrl: `${protocol}://${SERVER_IP}:${SERVER_PORT}/api`
 };
+
+// Debug: Ver qué IP se está usando
+console.log('🔗 Conectando a:', SERVER_IP);
+console.log('📱 Plataforma:', Capacitor.getPlatform());
+console.log('🌐 WebSocket:', `${wsProtocol}://${SERVER_IP}:${SERVER_PORT}`);
