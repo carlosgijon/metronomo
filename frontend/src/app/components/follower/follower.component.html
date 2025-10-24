@@ -1,5 +1,5 @@
 <ion-content [fullscreen]="true">
-  <ion-card class="metronome-fullscreen-card">
+  <ion-card [class]="cardClasses()">
     <ion-card-content style="height: 100%; display: flex; flex-direction: column; padding: 20px;">
       <!-- Header con info del usuario y logout -->
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
@@ -36,21 +36,17 @@
         </div>
       </div>
 
-      <!-- Área central: Visualización de beats GRANDE -->
+      <!-- Área central: Número del tiempo actual ENORME -->
       <div style="flex: 1; display: flex; align-items: center; justify-content: center;">
-        <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
-          @for (beat of beats(); track beat) {
-            <div
-              class="beat-indicator"
-              [style.width.px]="80"
-              [style.height.px]="80"
-              [style.font-size.px]="32"
-              [class.active]="isBeatActive(beat) && !metronomeState().accentFirst"
-              [class.accent]="isBeatActive(beat) && beat === 1 && metronomeState().accentFirst">
-              {{ beat }}
-            </div>
-          }
-        </div>
+        @if (metronomeState().isPlaying) {
+          <div class="beat-number-display">
+            {{ metronomeState().currentBeat }}
+          </div>
+        } @else {
+          <div style="color: rgba(255, 255, 255, 0.5); font-size: 48px; text-align: center;">
+            Esperando...
+          </div>
+        }
       </div>
 
       <!-- Info adicional abajo -->

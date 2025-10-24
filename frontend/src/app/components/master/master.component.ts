@@ -1,4 +1,4 @@
-import { Component, computed, signal, inject } from '@angular/core';
+import { Component, computed, signal, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -18,8 +18,7 @@ import {
   IonSelectOption,
   IonRange,
   IonToggle,
-  IonItem,
-  IonList
+  IonItem
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { play, pause, musicalNotes, settings, person, logOut } from 'ionicons/icons';
@@ -41,8 +40,7 @@ import { play, pause, musicalNotes, settings, person, logOut } from 'ionicons/ic
     IonSelectOption,
     IonRange,
     IonToggle,
-    IonItem,
-    IonList
+    IonItem
   ],
   templateUrl: './master.component.html',
   styleUrl: './master.component.css'
@@ -59,6 +57,7 @@ export class MasterComponent {
 
   bpmInput = signal(120);
   selectedPreset = signal<string | null>(null);
+  flashBeat = signal(false);
 
   timeSignatures = ['2/4', '3/4', '4/4', '5/4', '6/8', '7/8', '9/8', '12/8'];
   soundTypes: Array<'click' | 'beep' | 'wood'> = ['click', 'beep', 'wood'];
@@ -69,10 +68,22 @@ export class MasterComponent {
     return parseInt(timeSignature.split('/')[0]);
   });
 
-  // Array para visualizar los beats
-  beats = computed(() => {
-    const numBeats = this.beatsPerMeasure();
-    return Array.from({ length: numBeats }, (_, i) => i + 1);
+  // Computed para las clases de la card
+  cardClasses = computed(() => {
+    const state = this.metronomeState();
+    const classes: string[] = ['metronome-fullscreen-card'];
+
+    if (this.flashBeat()) {
+      classes.push('beat-flash');
+    }
+
+    if (state.isPlaying && state.currentBeat === 1) {
+      classes.push('beat-first');
+    } else if (state.isPlaying && state.currentBeat > 0) {
+      classes.push('beat-other');
+    }
+
+    return classes.join(' ');
   });
 
   constructor() {
@@ -80,6 +91,21 @@ export class MasterComponent {
 
     // Register icons
     addIcons({ play, pause, musicalNotes, settings, person, logOut });
+
+    // Effect para hacer parpadear la card en cada beat
+    effect(() => {
+      const state = this.metronomeState();
+
+      if (state.isPlaying && state.currentBeat > 0) {
+        // Activar el parpadeo
+        this.flashBeat.set(true);
+
+        // Desactivarlo después de la animación
+        setTimeout(() => {
+          this.flashBeat.set(false);
+        }, 150);
+      }
+    });
   }
 
   async toggleMetronome(): Promise<void> {

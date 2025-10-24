@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MetronomeSyncService } from '../../services/metronome-sync.service';
@@ -40,6 +40,7 @@ export class FollowerComponent {
 
   metronomeState = this.metronomeService.state;
   user = this.authService.currentUser;
+  flashBeat = signal(false);
 
   // Computed para saber cuántos beats tiene el compás
   beatsPerMeasure = computed(() => {
@@ -47,14 +48,41 @@ export class FollowerComponent {
     return parseInt(timeSignature.split('/')[0]);
   });
 
-  // Array para visualizar los beats
-  beats = computed(() => {
-    const numBeats = this.beatsPerMeasure();
-    return Array.from({ length: numBeats }, (_, i) => i + 1);
+  // Computed para las clases de la card
+  cardClasses = computed(() => {
+    const state = this.metronomeState();
+    const classes: string[] = ['metronome-fullscreen-card'];
+
+    if (this.flashBeat()) {
+      classes.push('beat-flash');
+    }
+
+    if (state.isPlaying && state.currentBeat === 1) {
+      classes.push('beat-first');
+    } else if (state.isPlaying && state.currentBeat > 0) {
+      classes.push('beat-other');
+    }
+
+    return classes.join(' ');
   });
 
   constructor() {
     addIcons({ person, logOut, checkmarkCircle, closeCircle });
+
+    // Effect para hacer parpadear la card en cada beat
+    effect(() => {
+      const state = this.metronomeState();
+
+      if (state.isPlaying && state.currentBeat > 0) {
+        // Activar el parpadeo
+        this.flashBeat.set(true);
+
+        // Desactivarlo después de la animación
+        setTimeout(() => {
+          this.flashBeat.set(false);
+        }, 150);
+      }
+    });
   }
 
   isBeatActive(beatNumber: number): boolean {

@@ -1,7 +1,33 @@
-// CONFIGURACIÓN DE PRODUCCIÓN: Cambia esta IP a la IP de tu servidor
-const SERVER_IP = 'localhost'; // Cambia esto por la IP de tu servidor (ej: '192.168.1.100' o 'miservidor.com')
+// Detección automática del servidor según el contexto (PRODUCCIÓN)
+const getServerIP = (): string => {
+  if (typeof window === 'undefined') {
+    return 'localhost';
+  }
+
+  const hostname = window.location.hostname;
+
+  // Si estamos en localhost o 127.0.0.1 (desarrollo en el equipo)
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    return '192.168.1.23'; // IP del servidor desde el equipo de programación
+  }
+
+  // Si estamos en la red móvil (192.168.50.*)
+  if (hostname.startsWith('192.168.50.')) {
+    return '192.168.50.1'; // IP del servidor desde móvil
+  }
+
+  // Si estamos en la misma máquina que el servidor
+  if (hostname === '192.168.1.23' || hostname === '192.168.50.1') {
+    return 'localhost';
+  }
+
+  // Por defecto, usar la IP del equipo de programación
+  return '192.168.1.23';
+};
+
+const SERVER_IP = getServerIP();
 const SERVER_PORT = 3000;
-const USE_HTTPS = false; // Cambia a true si usas HTTPS
+const USE_HTTPS = false;
 
 const protocol = USE_HTTPS ? 'https' : 'http';
 const wsProtocol = USE_HTTPS ? 'wss' : 'ws';
