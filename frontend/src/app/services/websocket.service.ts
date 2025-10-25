@@ -9,8 +9,110 @@ import { WSMessage, WSMessageType } from '../models/websocket.model';
 export class WebSocketService {
   private socket: Socket | null = null;
   private messageSubject = new Subject<WSMessage>();
+  private latency: number = 0;
+  private clockOffset: number = 0;
+  private latencyMeasurements: number[] = [];
 
   constructor() {}
+
+  /**
+   * Mide la latencia y clock offset con el servidor
+   * Hace múltiples pings para obtener un promedio preciso
+   */
+  async measureLatency(samples: number = 10): Promise<{ latency: number; clockOffset: number }> {
+    if (!this.socket || !this.socket.connected) {
+      console.warn('⚠️ Socket no conectado, no se puede medir latencia');
+      return { latency: 0, clockOffset: 0 };
+    }
+
+    console.log(`📊 Midiendo latencia con ${samples} muestras...`);
+    const latencies: number[] = [];
+    const offsets: number[] = [];
+
+    for (let i = 0; i < samples; i++) {
+      try {
+        const clientSendTime = Date.now();
+
+        // Enviar ping y esperar pong
+        const pong = await new Promise<any>((resolve, reject) => {
+          const timeout = setTimeout(() => {
+            reject(new Error('Timeout esperando pong'));
+          }, 5000);
+
+          this.socket!.emit(WSMessageType.PING, { timestamp: clientSendTime });
+
+          const handler = (message: any) => {
+            clearTimeout(timeout);
+            this.socket!.off(WSMessageType.PONG, handler);
+            resolve(message);
+          };
+
+          this.socket!.on(WSMessageType.PONG, handler);
+        });
+
+        const clientReceiveTime = Date.now();
+        const { clientSendTime: originalSendTime, serverReceiveTime, serverSendTime } = pong.payload;
+
+        // Calcular RTT (Round Trip Time)
+        const rtt = clientReceiveTime - originalSendTime;
+        latencies.push(rtt);
+
+        // Calcular clock offset usando el método NTP
+        // offset = ((T2 - T1) + (T3 - T4)) / 2
+        // T1 = clientSendTime, T2 = serverReceiveTime, T3 = serverSendTime, T4 = clientReceiveTime
+        const offset = ((serverReceiveTime - originalSendTime) + (serverSendTime - clientReceiveTime)) / 2;
+        offsets.push(offset);
+
+        // Pequeña pausa entre mediciones
+        await new Promise(resolve => setTimeout(resolve, 100));
+      } catch (error) {
+        console.warn(`⚠️ Error en medición ${i + 1}:`, error);
+      }
+    }
+
+    if (latencies.length === 0) {
+      console.error('❌ No se pudo medir latencia');
+      return { latency: 0, clockOffset: 0 };
+    }
+
+    // Calcular promedio de latencia (latency = RTT / 2)
+    this.latency = latencies.reduce((a, b) => a + b, 0) / latencies.length / 2;
+
+    // Calcular promedio de clock offset
+    this.clockOffset = offsets.reduce((a, b) => a + b, 0) / offsets.length;
+
+    this.latencyMeasurements = latencies;
+
+    console.log(`✅ Latencia medida: ${this.latency.toFixed(2)}ms (RTT: ${(this.latency * 2).toFixed(2)}ms)`);
+    console.log(`✅ Clock offset: ${this.clockOffset.toFixed(2)}ms`);
+    console.log(`📈 Mediciones RTT:`, latencies.map(l => `${l}ms`).join(', '));
+
+    return {
+      latency: this.latency,
+      clockOffset: this.clockOffset
+    };
+  }
+
+  /**
+   * Obtiene el tiempo del servidor ajustado
+   */
+  getServerTime(): number {
+    return Date.now() + this.clockOffset;
+  }
+
+  /**
+   * Obtiene la latencia actual
+   */
+  getLatency(): number {
+    return this.latency;
+  }
+
+  /**
+   * Obtiene el clock offset actual
+   */
+  getClockOffset(): number {
+    return this.clockOffset;
+  }
 
   connect(url: string): Observable<boolean> {
     return new Observable(observer => {

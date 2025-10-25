@@ -25,10 +25,15 @@ export class AuthService {
 
   async login(loginRequest: LoginRequest): Promise<void> {
     try {
+      console.log('🔌 Conectando al servidor...');
       // Conectar al WebSocket
       await this.wsService.connect(environment.wsUrl).toPromise();
 
-      // Crear usuario (sin medición de latencia para mejor rendimiento)
+      console.log('📊 Midiendo latencia y sincronizando reloj...');
+      // Medir latencia y clock offset (10 samples para alta precisión)
+      const { latency, clockOffset } = await this.wsService.measureLatency(10);
+
+      // Crear usuario
       const user: User = {
         id: this.generateUserId(),
         name: loginRequest.name,
@@ -38,11 +43,14 @@ export class AuthService {
       this.currentUserSignal.set(user);
       localStorage.setItem('currentUser', JSON.stringify(user));
 
-      // Enviar mensaje de conexión al servidor
+      console.log(`✅ Registrando usuario con latencia: ${latency.toFixed(2)}ms, offset: ${clockOffset.toFixed(2)}ms`);
+
+      // Enviar mensaje de conexión al servidor con latencia y clock offset
       this.wsService.send(WSMessageType.USER_CONNECTED, {
         name: user.name,
         role: user.role,
-        latency: 0 // Sin compensación de latencia
+        latency: Math.round(latency),
+        clockOffset: Math.round(clockOffset)
       });
 
       // Navegar según el rol
