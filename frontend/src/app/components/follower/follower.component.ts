@@ -77,10 +77,10 @@ export class FollowerComponent {
         // Activar el parpadeo
         this.flashBeat.set(true);
 
-        // Desactivarlo después de la animación
+        // Desactivarlo después de la animación (200ms para coincidir con flashBeatStrong)
         setTimeout(() => {
           this.flashBeat.set(false);
-        }, 150);
+        }, 200);
       }
     });
   }

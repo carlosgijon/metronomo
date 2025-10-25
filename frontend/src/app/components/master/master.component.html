@@ -3,8 +3,9 @@
     <ion-card-content
       style="height: 100%; display: flex; flex-direction: column; padding: 12px; overflow: hidden"
     >
-      <!-- Header con info del usuario y logout -->
+      <!-- Header con info del usuario y logout - OCULTAR CUANDO TOCA -->
       <div
+        [class.hide-when-playing]="metronomeState().isPlaying"
         style="
           display: flex;
           justify-content: space-between;
@@ -21,14 +22,15 @@
         </ion-button>
       </div>
 
-      <!-- BPM Display FINO Y PEQUEÑO arriba centro -->
+      <!-- BPM Display FINO Y PEQUEÑO arriba centro - SIEMPRE VISIBLE -->
       <div style="flex: 0 0 auto; text-align: center; margin-bottom: 12px">
         <div class="bpm-display">{{ bpmInput() }}</div>
         <div class="bpm-label">BPM</div>
       </div>
 
-      <!-- Info adicional: compás, sonido, acento -->
+      <!-- Info adicional: compás, sonido, acento - OCULTAR CUANDO TOCA -->
       <div
+        [class.hide-when-playing]="metronomeState().isPlaying"
         style="
           display: flex;
           gap: 8px;
@@ -51,7 +53,7 @@
         </ion-chip>
       </div>
 
-      <!-- Área central: Número de tiempo grande y botón PLAY -->
+      <!-- Área central: Número de tiempo grande y botón PLAY - SIEMPRE VISIBLE -->
       <div
         style="
           flex: 1;
@@ -83,8 +85,8 @@
         </ion-button>
       </div>
 
-      <!-- Presets y controles abajo del todo -->
-      <div style="flex: 0 0 auto">
+      <!-- Presets y controles abajo del todo - OCULTAR CUANDO TOCA -->
+      <div [class.hide-when-playing]="metronomeState().isPlaying" style="flex: 0 0 auto">
         <!-- Slider de BPM -->
         <div style="margin-bottom: 8px">
           <ion-range

@@ -44,28 +44,40 @@ ion-input {
   height: 100vh;
   margin: 0;
   --background: var(--ion-background-color);
-  transition: background-color 0.1s ease;
+  transition: background-color 0.05s ease-out;
 }
 
-/* Card con parpadeo y cambio de color */
+/* Clase para ocultar elementos cuando está tocando (no ocupa espacio) */
+.hide-when-playing {
+  display: none !important;
+}
+
+/* Card con parpadeo y cambio de color - ANIMACIÓN MÁS NOTORIA */
 .metronome-fullscreen-card.beat-flash {
-  animation: flashBeat 0.15s ease;
+  animation: flashBeatStrong 0.2s ease-out;
 }
 
 .metronome-fullscreen-card.beat-first {
-  --background: #10b981; /* Verde para primer tiempo */
+  --background: #10b981; /* Verde esmeralda para primer tiempo */
 }
 
 .metronome-fullscreen-card.beat-other {
-  --background: #ef4444; /* Rojo para otros tiempos */
+  --background: #1e40af; /* Azul oscuro intenso para otros tiempos */
 }
 
-@keyframes flashBeat {
-  0%, 100% {
+/* Animación más dramática y notoria */
+@keyframes flashBeatStrong {
+  0% {
     opacity: 1;
+    transform: scale(1);
   }
   50% {
-    opacity: 0.7;
+    opacity: 0.5;
+    transform: scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 

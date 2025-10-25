@@ -1,8 +1,8 @@
 <ion-content [fullscreen]="true">
   <ion-card [class]="cardClasses()">
     <ion-card-content style="height: 100%; display: flex; flex-direction: column; padding: 12px; overflow: hidden;">
-      <!-- Header con info del usuario y logout -->
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+      <!-- Header con info del usuario y logout - OCULTAR CUANDO TOCA -->
+      <div [class.hide-when-playing]="metronomeState().isPlaying" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
         <div class="info-item">
           <ion-icon name="person"></ion-icon>
           <span>{{ user()?.name }} (Seguidor)</span>
@@ -12,14 +12,14 @@
         </ion-button>
       </div>
 
-      <!-- BPM Display FINO Y PEQUEÑO arriba centro -->
-      <div style="flex: 0 0 auto; text-align: center; margin-bottom: 8px;">
+      <!-- BPM Display FINO Y PEQUEÑO arriba centro - SIEMPRE VISIBLE -->
+      <div style="flex: 0 0 auto; text-align: center; margin-bottom: 12px;">
         <div class="bpm-display">{{ metronomeState().bpm }}</div>
         <div class="bpm-label">BPM</div>
       </div>
 
-      <!-- Estado del metrónomo e info -->
-      <div style="margin-bottom: 12px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; align-items: center;">
+      <!-- Estado del metrónomo e info - OCULTAR CUANDO TOCA -->
+      <div [class.hide-when-playing]="metronomeState().isPlaying" style="margin-bottom: 12px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; align-items: center;">
         @if (metronomeState().isPlaying) {
           <ion-badge color="success" style="font-size: 12px;">
             <ion-icon name="checkmark-circle"></ion-icon>
@@ -48,20 +48,20 @@
         </ion-chip>
       </div>
 
-      <!-- Área central: Número del tiempo actual ENORME -->
-      <div style="flex: 1; display: flex; align-items: center; justify-content: center; min-height: 0;">
-        @if (metronomeState().isPlaying) {
-          <div class="beat-number-display">
-            {{ metronomeState().currentBeat }}
-          </div>
-        } @else {
-          <div style="color: rgba(255, 255, 255, 0.5); font-size: 36px; text-align: center;">
-            Esperando...
-          </div>
-        }
+      <!-- Área central: Número del tiempo actual ENORME - SIEMPRE VISIBLE CON VISIBILITY -->
+      <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; min-height: 0;">
+        <!-- Número del beat (siempre reserva espacio) -->
+        <div class="beat-number-display" [style.visibility]="metronomeState().isPlaying ? 'visible' : 'hidden'">
+          {{ metronomeState().isPlaying ? metronomeState().currentBeat : '0' }}
+        </div>
+
+        <!-- Mensaje de espera (solo cuando NO está tocando) -->
+        <div [class.hide-when-playing]="metronomeState().isPlaying" style="color: rgba(255, 255, 255, 0.5); font-size: 24px; text-align: center;">
+          Esperando...
+        </div>
       </div>
 
-      <!-- Info adicional abajo -->
+      <!-- Info adicional abajo - OCULTAR CUANDO TOCA -->
       @if (!metronomeState().isPlaying) {
         <div style="flex: 0 0 auto; background: rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 12px; text-align: center; color: white;">
           <div style="font-weight: 600; font-size: 14px; margin-bottom: 4px;">Esperando instrucciones</div>
