@@ -83,19 +83,21 @@ export class MetronomeGateway
   @SubscribeMessage(WSMessageType.USER_CONNECTED)
   handleUserConnected(
     @ConnectedSocket() client: Socket,
-    @MessageBody() data: { name: string; role: string; latency: number },
+    @MessageBody() data: { name: string; role: string; latency: number; clockOffset: number },
   ) {
     const connectedClient: ConnectedClient = {
       id: client.id,
       name: data.name,
       role: data.role as 'master' | 'follower' | 'admin',
-      latency: data.latency,
+      latency: data.latency || 0,
+      clockOffset: data.clockOffset || 0,
       connectedAt: new Date(),
+      isReady: false,
     };
 
     this.connectedClients.set(client.id, connectedClient);
     this.logger.log(
-      `Usuario conectado: ${data.name} (${data.role}) - Latencia: ${data.latency}ms`,
+      `Usuario conectado: ${data.name} (${data.role}) - Latencia: ${data.latency}ms, Offset: ${data.clockOffset}ms`,
     );
 
     // Enviar el estado actual del metrónomo al nuevo cliente
@@ -113,6 +115,24 @@ export class MetronomeGateway
     });
   }
 
+  @SubscribeMessage(WSMessageType.CLIENT_READY)
+  handleClientReady(@ConnectedSocket() client: Socket) {
+    const connectedClient = this.connectedClients.get(client.id);
+    if (connectedClient) {
+      connectedClient.isReady = true;
+      this.connectedClients.set(client.id, connectedClient);
+
+      this.logger.log(`Cliente listo: ${connectedClient.name}`);
+
+      // Notificar a todos que este cliente está listo
+      this.server.emit(WSMessageType.CLIENT_READY, {
+        type: WSMessageType.CLIENT_READY,
+        payload: { clientId: client.id, name: connectedClient.name },
+        timestamp: Date.now(),
+      });
+    }
+  }
+
   @SubscribeMessage(WSMessageType.METRONOME_START)
   handleMetronomeStart(@ConnectedSocket() client: Socket) {
     const connectedClient = this.connectedClients.get(client.id);
@@ -126,25 +146,45 @@ export class MetronomeGateway
       return;
     }
 
-    const currentState = this.metronomeService.getState();
+    // Calcular la latencia máxima de todos los clientes conectados
+    let maxLatency = 0;
+    for (const [_, cl] of this.connectedClients) {
+      if (cl.latency > maxLatency) {
+        maxLatency = cl.latency;
+      }
+    }
 
-    // Tiempo de inicio sincronizado: 200ms en el futuro
-    // Esto da tiempo a todos los clientes para recibir el mensaje y prepararse
-    const startTime = Date.now() + 200;
+    // Preparar el inicio con countdown considerando la latencia máxima
+    const startTime = this.metronomeService.prepareStart(maxLatency);
 
-    this.metronomeService.start();
-
-    // Broadcast del nuevo estado con startTime sincronizado
+    // Broadcast del estado de preparación con tiempo de inicio sincronizado
     this.server.emit(WSMessageType.METRONOME_STATE, {
       type: WSMessageType.METRONOME_STATE,
       payload: {
         ...this.metronomeService.getState(),
         startTime, // Tiempo absoluto de inicio
       },
-      timestamp: Date.now(), // Tiempo del servidor ahora
+      timestamp: Date.now(),
     });
 
-    this.logger.log(`Metrónomo iniciado, startTime: ${startTime}`);
+    this.logger.log(
+      `Metrónomo preparándose. Latencia máxima: ${maxLatency}ms, startTime: ${startTime}`
+    );
+
+    // Programar el inicio real del metrónomo para el tiempo calculado
+    const delayUntilStart = startTime - Date.now();
+    setTimeout(() => {
+      this.metronomeService.start();
+
+      // Broadcast del estado de ejecución
+      this.server.emit(WSMessageType.METRONOME_STATE, {
+        type: WSMessageType.METRONOME_STATE,
+        payload: this.metronomeService.getState(),
+        timestamp: Date.now(),
+      });
+
+      this.logger.log('Metrónomo iniciado - Todos los clientes sincronizados');
+    }, Math.max(delayUntilStart, 0));
   }
 
   @SubscribeMessage(WSMessageType.METRONOME_STOP)

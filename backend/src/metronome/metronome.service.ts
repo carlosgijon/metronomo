@@ -13,6 +13,8 @@ export class MetronomeService {
     accentFirst: true,
     soundType: 'click',
     timestamp: Date.now(),
+    countdownSeconds: 3, // 3 segundos de countdown por defecto
+    isPreparing: false,
   };
 
   private beatInterval: NodeJS.Timeout | null = null;
@@ -22,6 +24,41 @@ export class MetronomeService {
     return { ...this.state };
   }
 
+  /**
+   * Prepara el inicio del metrónomo con countdown
+   * @param maxLatency Latencia máxima de todos los clientes (ms)
+   * @returns Timestamp absoluto de cuándo debe empezar
+   */
+  prepareStart(maxLatency: number = 0): number {
+    if (this.state.isPlaying || this.state.isPreparing) {
+      this.logger.warn('El metrónomo ya está en ejecución o preparándose');
+      return this.state.startTime || Date.now();
+    }
+
+    this.state.isPreparing = true;
+
+    // Calcular tiempo de inicio:
+    // - countdownSeconds * 1000 ms para el countdown
+    // - maxLatency * 2 para compensar ida y vuelta
+    // - 500ms de buffer adicional
+    const countdownMs = (this.state.countdownSeconds || 3) * 1000;
+    const latencyBuffer = Math.max(maxLatency * 2, 500);
+    const startTime = Date.now() + countdownMs + latencyBuffer;
+
+    this.state.startTime = startTime;
+    this.state.timestamp = Date.now();
+
+    this.logger.log(
+      `Metrónomo preparándose. Countdown: ${this.state.countdownSeconds}s, ` +
+      `Latencia: ${maxLatency}ms, Inicio en: ${new Date(startTime).toISOString()}`
+    );
+
+    return startTime;
+  }
+
+  /**
+   * Inicia el metrónomo en el tiempo programado
+   */
   start(): void {
     if (this.state.isPlaying) {
       this.logger.warn('El metrónomo ya está en ejecución');
@@ -29,6 +66,7 @@ export class MetronomeService {
     }
 
     this.state.isPlaying = true;
+    this.state.isPreparing = false;
     this.state.currentBeat = 1;
     this.state.timestamp = Date.now();
 
@@ -37,12 +75,14 @@ export class MetronomeService {
   }
 
   stop(): void {
-    if (!this.state.isPlaying) {
+    if (!this.state.isPlaying && !this.state.isPreparing) {
       return;
     }
 
     this.state.isPlaying = false;
+    this.state.isPreparing = false;
     this.state.currentBeat = 0;
+    this.state.startTime = undefined;
 
     if (this.beatInterval) {
       clearTimeout(this.beatInterval);

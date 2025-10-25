@@ -6,6 +6,7 @@ export enum WSMessageType {
   // User management
   USER_CONNECTED = 'user_connected',
   USER_DISCONNECTED = 'user_disconnected',
+  CLIENT_READY = 'client_ready',
 
   // Metronome control
   METRONOME_STATE = 'metronome_state',
