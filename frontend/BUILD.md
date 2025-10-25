@@ -2,6 +2,54 @@
 
 Esta guía explica cómo compilar la aplicación para Android e iOS usando Capacitor.
 
+## 🚀 Comandos Rápidos (TL;DR)
+
+### Primera vez - Android
+
+```bash
+cd frontend
+npm install
+npx cap add android          # Solo primera vez
+npm run deploy:android       # Build + Sync + Config + Abre Android Studio
+```
+
+### Primera vez - iOS (solo macOS)
+
+```bash
+cd frontend
+npm install
+npx cap add ios              # Solo primera vez
+npm run deploy:ios           # Build + Sync + Abre Xcode
+```
+
+### Actualizaciones posteriores
+
+```bash
+# Android
+npm run build:android        # Build + Sync + Config automática
+npm run open:android         # Abre Android Studio
+
+# iOS
+npm run build:ios            # Build + Sync
+npm run open:ios             # Abre Xcode
+```
+
+### Scripts disponibles
+
+| Comando | Descripción |
+|---------|-------------|
+| `npm run build:android` | Build + Sync + Configura permisos Android automáticamente |
+| `npm run build:ios` | Build + Sync para iOS |
+| `npm run deploy:android` | Build completo + Abre Android Studio |
+| `npm run deploy:ios` | Build completo + Abre Xcode |
+| `npm run setup:android` | Solo configura permisos de red en Android |
+| `npm run open:android` | Solo abre Android Studio |
+| `npm run open:ios` | Solo abre Xcode |
+| `npm run cap:sync` | Sincroniza cambios con Capacitor |
+| `npm run cap:update` | Actualiza plugins de Capacitor |
+
+---
+
 ## 📋 Prerequisitos
 
 ### Para Android
@@ -57,38 +105,30 @@ npx cap add ios
 
 **Nota:** Este paso solo se hace UNA VEZ. Después de esto, solo usarás `npx cap sync`.
 
-### 3. Configurar Permisos de Red en Android (IMPORTANTE)
+### 3. Configurar Permisos de Red en Android (AUTOMÁTICO)
 
-⚠️ **Android bloquea conexiones HTTP por defecto**. Para permitir que la app se conecte al servidor en desarrollo, debes configurar los permisos de red:
+⚠️ **Android bloquea conexiones HTTP por defecto**. Hemos creado un script que configura todo automáticamente:
+
+#### Opción A: Configuración Automática (Recomendado) ✨
 
 ```bash
-# 1. Crear carpeta para configuración de red
-mkdir -p android/app/src/main/res/xml
-
-# 2. Copiar archivo de configuración de red
-cp resources/android/xml/network_security_config.xml android/app/src/main/res/xml/
+# Este script configura automáticamente AndroidManifest.xml
+# Funciona en Windows, macOS y Linux
+npm run setup:android
 ```
 
-**Modificar `android/app/src/main/AndroidManifest.xml`:**
+Esto automáticamente:
+- ✅ Crea la carpeta `android/app/src/main/res/xml/`
+- ✅ Copia `network_security_config.xml`
+- ✅ Agrega permisos de red en AndroidManifest.xml
+- ✅ Configura `usesCleartextTraffic="true"`
+- ✅ Configura `networkSecurityConfig`
 
-Agrega estos permisos ANTES del tag `<application>`:
-```xml
-<uses-permission android:name="android.permission.INTERNET" />
-<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-```
+#### Opción B: Configuración Manual
 
-Agrega estos atributos EN el tag `<application>`:
-```xml
-<application
-    ...
-    android:usesCleartextTraffic="true"
-    android:networkSecurityConfig="@xml/network_security_config">
-```
+Si prefieres hacerlo manualmente, consulta: `resources/android/CONFIGURACION_ANDROID.md`
 
-📖 **Instrucciones detalladas:** Ver `resources/android/CONFIGURACION_ANDROID.md`
-
-⚠️ **IMPORTANTE:** Estos cambios solo son necesarios para desarrollo con HTTP. Para producción, usa HTTPS y elimina `android:usesCleartextTraffic="true"`.
+⚠️ **IMPORTANTE:** Estos cambios solo son necesarios para desarrollo con HTTP. Para producción, usa HTTPS.
 
 ### 4. Configurar Variables de Entorno
 
@@ -366,19 +406,53 @@ pod install
 4. **Rendimiento:** El modo de producción (`npm run build`) es mucho más rápido que el modo desarrollo
 5. **Versiones:** Actualiza el número de versión en `package.json` antes de cada release
 
-## 🚀 Comandos Rápidos
+## 🚀 Comandos Rápidos - Referencia Completa
 
 ```bash
-# Desarrollo completo
-npm run build && npx cap sync && npx cap open android
-npm run build && npx cap sync && npx cap open ios
+# ========== ANDROID ==========
 
-# Solo sincronizar cambios
-npm run build && npx cap sync
+# Build completo + Abrir Android Studio (más común)
+npm run deploy:android
 
-# Actualizar plugins
-npx cap update
+# Solo build + sync + configuración automática
+npm run build:android
 
-# Ver estado de Capacitor
+# Solo configurar permisos de red (si ya hiciste build)
+npm run setup:android
+
+# Solo abrir Android Studio
+npm run open:android
+
+
+# ========== iOS ==========
+
+# Build completo + Abrir Xcode (más común)
+npm run deploy:ios
+
+# Solo build + sync
+npm run build:ios
+
+# Solo abrir Xcode
+npm run open:ios
+
+
+# ========== CAPACITOR ==========
+
+# Solo sincronizar cambios (después de modificar código)
+npm run cap:sync
+
+# Actualizar plugins de Capacitor
+npm run cap:update
+
+# Ver estado y diagnóstico
 npx cap doctor
+
+
+# ========== DESARROLLO WEB ==========
+
+# Servidor de desarrollo (navegador)
+npm start
+
+# Build de producción (solo web, sin nativo)
+npm run build
 ```
