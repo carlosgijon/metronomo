@@ -15,7 +15,9 @@ export class MetronomeSyncService {
     currentBeat: 0,
     accentFirst: true,
     soundType: 'click',
-    timestamp: 0
+    timestamp: 0,
+    countdownSeconds: 3,
+    isPreparing: false
   });
 
   public state = this.stateSignal.asReadonly();
@@ -32,17 +34,13 @@ export class MetronomeSyncService {
   private scheduleAheadTime: number = 0.1; // Programar 100ms adelante
   private lookAhead: number = 25; // Chequear cada 25ms
 
-  // Sincronización de tiempo
-  private timeOffset: number = 0; // Diferencia entre reloj del servidor y cliente
-  private networkLatency: number = 0; // Latencia de red estimada
-
   constructor(
     private wsService: WebSocketService,
     private authService: AuthService
   ) {
     this.initAudioContext();
     this.subscribeToMetronomeEvents();
-    this.measureTimeOffset(); // Medir offset al iniciar
+    // NO medir offset aquí, ya lo hicimos en login
   }
 
   private initAudioContext(): void {
@@ -125,50 +123,6 @@ export class MetronomeSyncService {
     return buffer;
   }
 
-  private async measureTimeOffset(): Promise<void> {
-    console.log('⏱️ Midiendo latencia y offset de tiempo...');
-
-    const measurements: { latency: number; offset: number }[] = [];
-
-    // Realizar 5 mediciones
-    for (let i = 0; i < 5; i++) {
-      const clientSendTime = Date.now();
-
-      // Enviar PING
-      this.wsService.send(WSMessageType.PING, { timestamp: clientSendTime });
-
-      // Esperar PONG
-      await new Promise<void>((resolve) => {
-        this.wsService.onMessage<any>(WSMessageType.PONG).subscribe((pongData) => {
-          const clientReceiveTime = Date.now();
-          const serverReceiveTime = pongData.serverReceiveTime;
-          const serverSendTime = pongData.serverSendTime;
-
-          const roundTripTime = clientReceiveTime - clientSendTime;
-          const estimatedLatency = roundTripTime / 2;
-
-          // Calcular offset entre relojes
-          // offset positivo = reloj del servidor adelantado
-          // offset negativo = reloj del servidor atrasado
-          const offset = serverSendTime - clientReceiveTime + estimatedLatency;
-
-          measurements.push({ latency: estimatedLatency, offset });
-          resolve();
-        }, { once: true } as any);
-      });
-
-      // Pequeña pausa entre mediciones
-      await this.sleep(100);
-    }
-
-    // Usar la mediana para ser robusto contra outliers
-    this.networkLatency = this.median(measurements.map(m => m.latency));
-    this.timeOffset = this.median(measurements.map(m => m.offset));
-
-    console.log('✅ Latencia de red:', this.networkLatency.toFixed(2), 'ms');
-    console.log('✅ Offset de tiempo:', this.timeOffset.toFixed(2), 'ms');
-  }
-
   private subscribeToMetronomeEvents(): void {
     console.log('📡 Suscribiéndose a eventos de metrónomo...');
 
@@ -205,20 +159,24 @@ export class MetronomeSyncService {
 
     // Si hay un startTime sincronizado, esperar hasta ese momento
     if (state.startTime) {
-      const now = Date.now();
-      const adjustedStartTime = state.startTime - this.timeOffset; // Ajustar por diferencia de relojes
-      const delayMs = adjustedStartTime - now;
+      // Obtener el tiempo del servidor sincronizado
+      const serverTime = this.wsService.getServerTime();
+      const delayMs = state.startTime - serverTime;
 
-      console.log('⏱️ Esperando hasta startTime:', delayMs.toFixed(2), 'ms');
+      console.log(`⏱️ Esperando hasta startTime:`);
+      console.log(`  - Tiempo servidor: ${serverTime}ms`);
+      console.log(`  - StartTime: ${state.startTime}ms`);
+      console.log(`  - Delay: ${delayMs.toFixed(2)}ms`);
 
       if (delayMs > 0) {
         // Esperar hasta el tiempo de inicio sincronizado
         setTimeout(() => {
+          this.currentLocalBeat = 1; // Empezar en beat 1
           this.initializeScheduler();
         }, delayMs);
       } else {
         // Si ya pasó el tiempo, calcular en qué beat estamos
-        const timeSinceStart = now - adjustedStartTime;
+        const timeSinceStart = -delayMs;
         const secondsPerBeat = 60.0 / state.bpm;
         const beatsPassed = Math.floor(timeSinceStart / 1000 / secondsPerBeat);
         const beatsPerMeasure = this.getBeatsPerMeasure(state.timeSignature);
@@ -229,6 +187,7 @@ export class MetronomeSyncService {
       }
     } else {
       // Sin startTime, iniciar inmediatamente (modo legacy)
+      this.currentLocalBeat = 1;
       this.initializeScheduler();
     }
   }
@@ -358,17 +317,5 @@ export class MetronomeSyncService {
 
   setAccentFirst(accentFirst: boolean): void {
     this.updateMetronome({ accentFirst });
-  }
-
-  // Utilidades
-  private sleep(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
-
-  private median(arr: number[]): number {
-    if (arr.length === 0) return 0;
-    const sorted = arr.slice().sort((a, b) => a - b);
-    const mid = Math.floor(sorted.length / 2);
-    return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
   }
 }

@@ -30,8 +30,8 @@ export class AuthService {
       await this.wsService.connect(environment.wsUrl).toPromise();
 
       console.log('📊 Midiendo latencia y sincronizando reloj...');
-      // Medir latencia y clock offset (10 samples para alta precisión)
-      const { latency, clockOffset } = await this.wsService.measureLatency(10);
+      // Medir latencia y clock offset (5 samples = más rápido)
+      const { latency, clockOffset } = await this.wsService.measureLatency(5);
 
       // Crear usuario
       const user: User = {
