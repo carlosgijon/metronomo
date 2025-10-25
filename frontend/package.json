@@ -10,18 +10,15 @@
 
     "setup:android": "node scripts/setup-android.js",
     "setup:ios": "echo 'iOS setup - No configuration needed'",
-
     "build:android": "npm run build && npx cap sync && npm run setup:android",
     "build:ios": "npm run build && npx cap sync",
-
     "open:android": "npx cap open android",
     "open:ios": "npx cap open ios",
-
     "deploy:android": "npm run build:android && npm run open:android",
     "deploy:ios": "npm run build:ios && npm run open:ios",
-
     "cap:sync": "npx cap sync",
-    "cap:update": "npx cap update"
+    "cap:update": "npx cap update",
+    "build:apk": "npm run setup:android && npm run build && npx cap sync && cd android && gradlew.bat assembleDebug"
   },
   "prettier": {
     "printWidth": 100,
