@@ -5,7 +5,16 @@ const config: CapacitorConfig = {
   appName: 'Metrónomo Sincronizado',
   webDir: 'dist/frontend/browser',
   server: {
-    androidScheme: 'https'
+    androidScheme: 'https',
+    // Permitir conexiones HTTP en desarrollo
+    // IMPORTANTE: Para producción, usa HTTPS
+    cleartext: true,
+    // Permitir conexiones a cualquier host (desarrollo)
+    allowNavigation: ['*']
+  },
+  android: {
+    // Permitir tráfico HTTP (cleartext)
+    allowMixedContent: true
   },
   plugins: {
     SplashScreen: {

@@ -57,7 +57,40 @@ npx cap add ios
 
 **Nota:** Este paso solo se hace UNA VEZ. Después de esto, solo usarás `npx cap sync`.
 
-### 3. Configurar Variables de Entorno
+### 3. Configurar Permisos de Red en Android (IMPORTANTE)
+
+⚠️ **Android bloquea conexiones HTTP por defecto**. Para permitir que la app se conecte al servidor en desarrollo, debes configurar los permisos de red:
+
+```bash
+# 1. Crear carpeta para configuración de red
+mkdir -p android/app/src/main/res/xml
+
+# 2. Copiar archivo de configuración de red
+cp resources/android/xml/network_security_config.xml android/app/src/main/res/xml/
+```
+
+**Modificar `android/app/src/main/AndroidManifest.xml`:**
+
+Agrega estos permisos ANTES del tag `<application>`:
+```xml
+<uses-permission android:name="android.permission.INTERNET" />
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+```
+
+Agrega estos atributos EN el tag `<application>`:
+```xml
+<application
+    ...
+    android:usesCleartextTraffic="true"
+    android:networkSecurityConfig="@xml/network_security_config">
+```
+
+📖 **Instrucciones detalladas:** Ver `resources/android/CONFIGURACION_ANDROID.md`
+
+⚠️ **IMPORTANTE:** Estos cambios solo son necesarios para desarrollo con HTTP. Para producción, usa HTTPS y elimina `android:usesCleartextTraffic="true"`.
+
+### 4. Configurar Variables de Entorno
 
 Edita `src/environments/environment.prod.ts` para configurar la IP del servidor:
 
@@ -67,7 +100,7 @@ const SERVER_IP = 'tu-servidor.com';  // O IP pública
 const SERVER_PORT = 3000;
 ```
 
-### 4. Build de Producción
+### 5. Build de Producción
 
 ```bash
 npm run build
@@ -75,7 +108,7 @@ npm run build
 
 Este comando genera los archivos optimizados en `dist/frontend/browser/`.
 
-### 5. Sincronizar con Capacitor
+### 6. Sincronizar con Capacitor
 
 ```bash
 npx cap sync
@@ -257,10 +290,24 @@ cd android
 ./gradlew build
 ```
 
-**Error: App no conecta al servidor**
+**Error: App no conecta al servidor (Timeout)**
+- ⚠️ **CAUSA MÁS COMÚN:** Android bloquea conexiones HTTP por defecto
+- **SOLUCIÓN:** Sigue los pasos en `resources/android/CONFIGURACION_ANDROID.md`
+- Verifica que agregaste los permisos en `AndroidManifest.xml`
+- Verifica que copiaste `network_security_config.xml` a la carpeta correcta
+- Reconstruye completamente: Build → Clean Project → Rebuild Project
+
+**Error: CLEARTEXT communication not permitted**
+- Este error confirma que Android está bloqueando HTTP
+- Sigue las instrucciones en `resources/android/CONFIGURACION_ANDROID.md`
+- Asegúrate de que `android:usesCleartextTraffic="true"` está en el manifest
+- Verifica que `android:networkSecurityConfig="@xml/network_security_config"` está configurado
+
+**Error: Connection refused o Network unreachable**
 - Verifica que la IP en `environment.prod.ts` sea accesible desde el dispositivo
-- En Android, usa la IP local de tu PC, no `localhost`
+- En Android, usa la IP local de tu PC en la red, no `localhost`
 - Para emuladores Android: usa `10.0.2.2` para localhost
+- Verifica el firewall del servidor (debe permitir puerto 3000)
 
 ### iOS
 
